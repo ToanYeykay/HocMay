@@ -25,16 +25,32 @@ def load_prediction_model():
 
 @st.cache_data
 def load_analysis_data():
-    """Tải dữ liệu 50.000 dòng để phân tích"""
-    file_path = 'food_ordering_behavior_dataset.csv'
-    if not os.path.exists(file_path):
-        st.error(f"❌ Không tìm thấy file {file_path}. Vui lòng kiểm tra lại trên GitHub!")
-        return None
+    file_path = 'food_ordering_behavior_dataset3.csv'
     
-    df = pd.read_csv(file_path)
-    # Dọn dẹp khoảng trắng tên cột nếu có
-    df.columns = df.columns.str.strip()
-    return df
+    if not os.path.exists(file_path):
+        st.error("❌ File không tồn tại trên server!")
+        return None
+
+    # --- ĐOẠN CODE CHẨN ĐOÁN ---
+    file_size = os.path.getsize(file_path)
+    st.sidebar.info(f"Dung lượng file: {file_size / 1024:.2f} KB")
+    
+    # Nếu file quá nhỏ (dưới 1KB) thì chắc chắn là file lỗi/LFS pointer
+    if file_size < 1000:
+        st.error("⚠️ Cảnh báo: File CSV quá nhỏ. Có thể đây là file LFS Pointer hoặc file trống!")
+        with open(file_path, 'r') as f:
+            st.code(f.read(), language="text") # Hiển thị nội dung file để kiểm tra
+        return None
+    # ---------------------------
+
+    try:
+        # Thử đọc với encoding utf-8-sig (phòng lỗi từ Excel/Colab)
+        df = pd.read_csv(file_path, encoding='utf-8-sig', on_bad_lines='skip')
+        df.columns = df.columns.str.strip()
+        return df
+    except Exception as e:
+        st.error(f"❌ Lỗi khi đọc CSV: {e}")
+        return None
 
 # --- 3. TRANG NHẬP LIỆU & DỰ ĐOÁN ---
 def prediction_page():
