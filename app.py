@@ -25,11 +25,11 @@ def load_models():
     
     # 2. Load Model Rating (.json)
     m_rating = xgb.XGBRegressor()
-    m_rating.load_model('models/model_rating.json')
+    m_rating.load_model('models/model_rating.pkl')
     
     # 3. Load Model Repeat (.json)
     m_repeat = xgb.XGBClassifier()
-    m_repeat.load_model('models/model_repeat.json')
+    m_repeat.load_model('models/model_repeat.pkl')
     
     return m_rating, m_repeat, m_cols
 
