@@ -20,7 +20,7 @@ def load_prediction_model():
             model_cols = json.load(f)
         return model, model_cols
     except Exception as e:
-        st.error(f"❌ Không thể tải mô hình: {e}")
+        st.error(f"Không thể tải mô hình: {e}")
         return None, None
 
 @st.cache_data
@@ -29,33 +29,33 @@ def load_analysis_data():
     
     # 1. Kiểm tra file có tồn tại không
     if not os.path.exists(file_path):
-        st.error("❌ Không tìm thấy file trên server!")
+        st.error("Không tìm thấy file trên server!")
         return None
 
     # 2. Kiểm tra dung lượng file
     file_size = os.path.getsize(file_path)
     if file_size < 500: # Nếu file dưới 500 byte thì chắc chắn là lỗi
-        st.error(f"⚠️ File CSV hiện tại quá nhỏ ({file_size} bytes). Đây có thể là file lỗi từ GitHub LFS!")
-        st.info("💡 Cách sửa: Hãy upload trực tiếp file CSV từ máy tính lên GitHub Web (Add file -> Upload).")
+        st.error(f"File CSV hiện tại quá nhỏ ({file_size} bytes). Đây có thể là file lỗi từ GitHub LFS!")
+        st.info("Cách sửa: Hãy upload trực tiếp file CSV từ máy tính lên GitHub Web (Add file -> Upload).")
         return None
 
     try:
         # 3. Thử đọc file
         df = pd.read_csv(file_path)
         if df.empty:
-            st.error("❌ File CSV tồn tại nhưng không có dữ liệu!")
+            st.error("File CSV tồn tại nhưng không có dữ liệu!")
             return None
         df.columns = df.columns.str.strip()
         return df
     except pd.errors.EmptyDataError:
-        st.error("❌ Lỗi: File CSV hoàn toàn trống rỗng!")
+        st.error("Lỗi: File CSV hoàn toàn trống rỗng!")
         return None
     except Exception as e:
-        st.error(f"❌ Lỗi không xác định: {e}")
+        st.error(f"Lỗi không xác định: {e}")
         return None
 # --- 3. TRANG NHẬP LIỆU & DỰ ĐOÁN ---
 def prediction_page():
-    st.title("🚀 Dự Đoán Rating Khách Hàng")
+    st.title("Dự Đoán Rating Khách Hàng")
     st.markdown("Nhập thông tin đơn hàng để dự đoán mức độ hài lòng của khách.")
 
     model, model_cols = load_prediction_model()
@@ -71,8 +71,8 @@ def prediction_page():
             cuisine = st.selectbox("Loại món ăn", ["Chinese", "South Indian", "Biryani", "North Indian", "Fast Food", "Desserts"])
         
         with c2:
-            order_val = st.number_input("Giá trị món (VNĐ)", 0, 1000000, 50000, step=5000)
-            delivery = st.number_input("Phí vận chuyển (VNĐ)", 0, 100000, 15000, step=1000)
+            order_val = st.number_input("Giá trị món", 0, 1000000, 50000, step=5000)
+            delivery = st.number_input("Phí vận chuyển", 0, 100000, 15000, step=1000)
             time_period = st.selectbox("Buổi trong ngày", ["Morning", "Afternoon", "Evening", "Night"])
             discount = st.selectbox("Áp dụng giảm giá", [1, 0], format_func=lambda x: "Có" if x==1 else "Không")
 
@@ -82,7 +82,7 @@ def prediction_page():
             rain = st.selectbox("Thời tiết mưa", [1, 0], format_func=lambda x: "Đang mưa" if x==1 else "Không mưa")
             rank = st.selectbox("Hạng khách hàng", ["Diamond", "Gold", "Silver", "Bronze"])
 
-        submit_btn = st.form_submit_button("🔥 Phân tích & Dự đoán")
+        submit_btn = st.form_submit_button("Phân tích & Dự đoán")
 
         if submit_btn:
             # Tạo DataFrame 1 dòng với toàn bộ cột của mô hình (tất cả là 0)
@@ -113,7 +113,7 @@ def prediction_page():
             # Hiển thị kết quả
             st.divider()
             res_col1, res_col2 = st.columns(2)
-            res_col1.metric("Rating dự báo", f"{pred_rating:.2f} / 5.0 ⭐")
+            res_col1.metric("Rating dự báo", f"{pred_rating:.2f} / 5.0")
             
             if pred_rating >= 4.0:
                 st.balloons()
@@ -123,17 +123,17 @@ def prediction_page():
 
 # --- 4. TRANG PHÂN TÍCH DASHBOARD ---
 def analysis_page():
-    st.title("📊 Dashboard Phân Tích Hệ Sinh Thái")
+    st.title("Dashboard Phân Tích Hệ Sinh Thái")
     df = load_analysis_data()
     if df is None: return
 
     # Các chỉ số Metric chính
-    st.markdown("### 📈 Chỉ số tổng quan")
+    st.markdown("### Chỉ số tổng quan")
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Tổng đơn hàng", f"{len(df):,}")
-    m2.metric("Rating trung bình", f"{df['rating_given'].mean():.2f} ⭐")
+    m2.metric("Rating trung bình", f"{df['rating_given'].mean():.2f}")
     m3.metric("Khách hàng duy nhất", f"{df['user_id'].nunique():,}")
-    m4.metric("Doanh thu TB/Đơn", f"{int(df['order_value'].mean()):,}đ")
+    m4.metric("Doanh thu TB/Đơn", f"{int(df['order_value'].mean()):,}")
 
     st.divider()
 
@@ -141,7 +141,7 @@ def analysis_page():
     col_left, col_right = st.columns(2)
 
     with col_left:
-        st.subheader("🏆 Cơ cấu hạng thành viên")
+        st.subheader("Cơ cấu hạng thành viên")
         if 'rank' in df.columns:
             rank_data = df['rank'].value_counts()
             st.bar_chart(rank_data)
@@ -149,7 +149,7 @@ def analysis_page():
             st.warning("Không tìm thấy dữ liệu 'rank' để vẽ biểu đồ.")
 
     with col_right:
-        st.subheader("🚚 Phí Ship vs Mức Độ Hài Lòng")
+        st.subheader("Phí Ship vs Mức Độ Hài Lòng")
         fig, ax = plt.subplots(figsize=(8, 5))
         # Lấy mẫu 1000 dòng để vẽ nhanh hơn
         sns.regplot(data=df.sample(1000), x='delivery_fee', y='rating_given', 
@@ -159,9 +159,6 @@ def analysis_page():
 
     st.divider()
     
-    # Bảng dữ liệu chi tiết
-    with st.expander("🔍 Xem chi tiết 100 dòng dữ liệu mới nhất"):
-        st.dataframe(df.tail(100), use_container_width=True)
 
 # --- 5. ĐIỀU HƯỚNG CHÍNH ---
 def main():
