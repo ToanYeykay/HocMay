@@ -7,7 +7,7 @@ CITIES = ['Pune', 'Mumbai', 'Delhi', 'Chandigarh', 'Bangalore', 'Hyderabad']
 CUISINES = ['Chinese', 'South Indian', 'Biryani', 'Fast Food', 'North Indian', 'Desserts']
 MEAL_TYPES = ['Dinner', 'Breakfast', 'Snacks', 'Lunch']
 MOODS = ['Celebrating', 'Lazy', 'Happy', 'Stressed']
-HUNGER_LEVELS = ['High', 'Low', 'Medium']
+HUNGER_LEVELS = ['Low', 'Medium', 'High']
 COMPANIES = ['Partner', 'Family', 'Friends', 'Alone']
 
 # --- 2. CÁC HÀM XỬ LÝ DATABASE ---
