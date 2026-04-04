@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sqlite3
 
 st.set_page_config(page_title="Food Ordering Behavior Dashboard", layout="wide")
 
@@ -22,56 +23,80 @@ df_selection = df[df["city"].isin(city)]
 import streamlit as st
 import pandas as pd
 
-def main():
-    st.title("🍽️ Hệ Thống Ghi Nhận Đơn Hàng")
-    st.subheader("Nhập thông tin khách hàng và đơn hàng")
+def init_db():
+    conn = sqlite3.connect('customer_data.db')
+    c = conn.cursor()
+    # Tạo bảng nếu chưa tồn tại
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            city TEXT,
+            name TEXT,
+            age INTEGER,
+            cuisine TEXT,
+            meal_type TEXT,
+            order_value REAL,
+            discount_applied INTEGER,
+            mood TEXT,
+            hunger_level TEXT,
+            company TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-    with st.form("order_form"):
-        # Chia cột để giao diện cân đối hơn
+def add_data(city, name, age, cuisine, meal_type, order_value, discount_applied, mood, hunger_level, company):
+    conn = sqlite3.connect('customer_data.db')
+    c = conn.cursor()
+    query = '''
+        INSERT INTO orders (city, name, age, cuisine, meal_type, order_value, discount_applied, mood, hunger_level, company)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    '''
+    c.execute(query, (city, name, age, cuisine, meal_type, order_value, discount_applied, mood, hunger_level, company))
+    conn.commit()
+    conn.close()
+
+# --- GIAO DIỆN STREAMLIT ---
+def main():
+    st.set_page_config(page_title="Quản lý đơn hàng", layout="wide")
+    init_db() # Khởi tạo DB ngay khi chạy app
+
+    st.title("🍽️ Hệ Thống Ghi Nhận Đơn Hàng")
+    
+    with st.form("order_form", clear_on_submit=True):
         col1, col2 = st.columns(2)
 
         with col1:
-            name = st.text_input("Tên khách hàng", placeholder="Ví dụ: Nguyễn Văn A")
+            name = st.text_input("Tên khách hàng")
             age = st.number_input("Tuổi", min_value=1, max_value=100, value=25)
-            city = st.text_input("Thành phố", placeholder="Ví dụ: Hà Nội, TP.HCM")
-            cuisine = st.selectbox("Cuisine (Loại ẩm thực)", 
-                                 ["Vietnamese", "Italian", "Japanese", "Korean", "Western", "Other"])
+            city = st.text_input("Thành phố")
+            cuisine = st.selectbox("Cuisine", ["Vietnamese", "Italian", "Japanese", "Korean", "Western"])
             meal_type = st.selectbox("Meal Type", ["Breakfast", "Lunch", "Dinner", "Snack"])
 
         with col2:
             order_value = st.number_input("Order Value (VNĐ)", min_value=0, step=1000)
             discount_applied = st.selectbox("Discount Applied", options=[1, 0], 
                                            format_func=lambda x: "Có (1)" if x == 1 else "Không (0)")
-            
-            # Các trường có giá trị mặc định theo yêu cầu
-            mood = st.selectbox("Mood", ["Happy", "Neutral", "Sad", "Stressed"], index=0) # Mặc định Happy
-            hunger_level = st.select_slider("Hunger Level", 
-                                          options=["Low", "Medium", "High"], value="Medium") # Mặc định Medium
-            company = st.selectbox("Company", ["Alone", "Friends", "Family", "Partner"], index=0) # Mặc định Alone
+            mood = st.selectbox("Mood", ["Happy", "Neutral", "Sad", "Stressed"], index=0)
+            hunger_level = st.select_slider("Hunger Level", options=["Low", "Medium", "High"], value="Medium")
+            company = st.selectbox("Company", ["Alone", "Friends", "Family", "Partner"], index=0)
 
-        # Nút xác nhận
-        submitted = st.form_submit_button("Lưu thông tin đơn hàng")
+        submitted = st.form_submit_button("Lưu vào cơ sở dữ liệu")
 
         if submitted:
-            if not name or not city:
-                st.error("Vui lòng nhập đầy đủ Tên và Thành phố!")
+            if name and city:
+                add_data(city, name, age, cuisine, meal_type, order_value, discount_applied, mood, hunger_level, company)
+                st.success(f"✅ Đã thêm dữ liệu của {name} vào database!")
             else:
-                # Tạo một dictionary để lưu trữ hoặc xử lý tiếp
-                new_data = {
-                    "City": city,
-                    "Name": name,
-                    "Age": age,
-                    "Cuisine": cuisine,
-                    "Meal_Type": meal_type,
-                    "Order_Value": order_value,
-                    "Discount_Applied": discount_applied,
-                    "Mood": mood,
-                    "Hunger_Level": hunger_level,
-                    "Company": company
-                }
-                
-                st.success("Đã lưu thông tin thành công!")
-                st.json(new_data) # Hiển thị dữ liệu vừa nhập để kiểm tra
+                st.error("Vui lòng điền các thông tin bắt buộc (Tên, Thành phố)!")
+
+    # --- HIỂN THỊ DỮ LIỆU ĐÃ LƯU ---
+    if st.checkbox("Hiển thị danh sách đơn hàng đã lưu"):
+        conn = sqlite3.connect('customer_data.db')
+        df = pd.read_sql_query("SELECT * FROM orders ORDER BY id DESC", conn)
+        st.dataframe(df)
+        conn.close()
 
 if __name__ == "__main__":
     main()
