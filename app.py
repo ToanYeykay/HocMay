@@ -133,7 +133,7 @@ def analysis_page():
     m1.metric("Tổng đơn hàng", f"{len(df):,}")
     m2.metric("Rating trung bình", f"{df['rating_given'].mean():.2f} ⭐")
     m3.metric("Khách hàng duy nhất", f"{df['user_id'].nunique():,}")
-    m4.metric("Doanh thu TB/Đơn", f"{int(df['order_value'].mean()):,}đ")
+    m4.metric("Doanh thu TB/Đơn", f"{int(df['order_value'].mean()):,}")
 
     st.divider()
 
