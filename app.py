@@ -35,7 +35,7 @@ def load_analysis_data():
     # 2. Kiểm tra dung lượng file
     file_size = os.path.getsize(file_path)
     if file_size < 500: # Nếu file dưới 500 byte thì chắc chắn là lỗi
-        st.error(f"File CSV hiện tại quá nhỏ ({file_size} bytes). Đây có thể là file lỗi từ GitHub LFS!")
+        st.error(f" File CSV hiện tại quá nhỏ ({file_size} bytes). Đây có thể là file lỗi từ GitHub LFS!")
         st.info("Cách sửa: Hãy upload trực tiếp file CSV từ máy tính lên GitHub Web (Add file -> Upload).")
         return None
 
@@ -71,8 +71,8 @@ def prediction_page():
             cuisine = st.selectbox("Loại món ăn", ["Chinese", "South Indian", "Biryani", "North Indian", "Fast Food", "Desserts"])
         
         with c2:
-            order_val = st.number_input("Giá trị món", 0, 1000000, 50000, step=5000)
-            delivery = st.number_input("Phí vận chuyển", 0, 100000, 15000, step=1000)
+            order_val = st.number_input("Giá trị món (VNĐ)", 0, 1000000, 50000, step=5000)
+            delivery = st.number_input("Phí vận chuyển (VNĐ)", 0, 100000, 15000, step=1000)
             time_period = st.selectbox("Buổi trong ngày", ["Morning", "Afternoon", "Evening", "Night"])
             discount = st.selectbox("Áp dụng giảm giá", [1, 0], format_func=lambda x: "Có" if x==1 else "Không")
 
@@ -131,9 +131,9 @@ def analysis_page():
     st.markdown("### Chỉ số tổng quan")
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Tổng đơn hàng", f"{len(df):,}")
-    m2.metric("Rating trung bình", f"{df['rating_given'].mean():.2f}")
+    m2.metric("Rating trung bình", f"{df['rating_given'].mean():.2f} ⭐")
     m3.metric("Khách hàng duy nhất", f"{df['user_id'].nunique():,}")
-    m4.metric("Doanh thu TB/Đơn", f"{int(df['order_value'].mean()):,}")
+    m4.metric("Doanh thu TB/Đơn", f"{int(df['order_value'].mean()):,}đ")
 
     st.divider()
 
