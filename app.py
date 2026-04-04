@@ -79,6 +79,19 @@ def input_page():
 
 # --- TRANG 2: PHÂN TÍCH ---
 def analysis_page():
+    st.title("📊 Dashboard Phân Tích Dữ Liệu")
+    df = load_data()
+
+    # Kiểm tra xem cột rank có tồn tại không
+    if 'rank' not in df.columns:
+        st.error("⚠️ Lỗi: Không tìm thấy cột 'rank' trong dữ liệu. Vui lòng kiểm tra lại file CSV!")
+        st.write("Các cột hiện có trong file của bạn là:", df.columns.tolist())
+        return # Dừng trang này tại đây để không bị crash
+
+    # Nếu có cột rank thì mới chạy tiếp các dòng dưới
+    st.subheader("🏆 Phân lớp Khách hàng")
+    rank_counts = df['rank'].value_counts()
+    st.bar_chart(rank_counts)
     st.title("Dashboard Phân Tích Dữ Liệu")
     df = load_data()
 
