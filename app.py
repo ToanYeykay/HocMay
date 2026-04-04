@@ -71,8 +71,8 @@ def prediction_page():
             cuisine = st.selectbox("Loại món ăn", ["Chinese", "South Indian", "Biryani", "North Indian", "Fast Food", "Desserts"])
         
         with c2:
-            order_val = st.number_input("Giá trị món (VNĐ)", 0, 1000000, 50000, step=5000)
-            delivery = st.number_input("Phí vận chuyển (VNĐ)", 0, 100000, 15000, step=1000)
+            order_val = st.number_input("Giá trị món", 0, 1000, 500, step=50)
+            delivery = st.number_input("Phí vận chuyển", 0, 100, 15, step=10)
             time_period = st.selectbox("Buổi trong ngày", ["Morning", "Afternoon", "Evening", "Night"])
             discount = st.selectbox("Áp dụng giảm giá", [1, 0], format_func=lambda x: "Có" if x==1 else "Không")
 
