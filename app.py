@@ -7,7 +7,7 @@ CITIES = ['Pune', 'Mumbai', 'Delhi', 'Chandigarh', 'Bangalore', 'Hyderabad']
 CUISINES = ['Chinese', 'South Indian', 'Biryani', 'Fast Food', 'North Indian', 'Desserts']
 MEAL_TYPES = ['Dinner', 'Breakfast', 'Snacks', 'Lunch']
 MOODS = ['Celebrating', 'Lazy', 'Happy', 'Stressed']
-HUNGER_LEVELS = ['High', 'Low', 'Medium']
+HUNGER_LEVELS = ['Low', 'Medium', 'High']
 COMPANIES = ['Partner', 'Family', 'Friends', 'Alone']
 
 # --- 2. CÁC HÀM XỬ LÝ DATABASE ---
@@ -65,7 +65,7 @@ def main():
             meal_type = st.selectbox("Bữa ăn", options=MEAL_TYPES)
 
         with col2:
-            order_value = st.number_input("Giá trị đơn hàng (VNĐ)", min_value=0.0, step=1000.0)
+            order_value = st.number_input("Giá trị đơn hàng ", min_value=0.0, step=1000.0)
             discount_applied = st.radio("Sử dụng mã giảm giá?", options=[1, 0], 
                                        format_func=lambda x: "Có (1)" if x == 1 else "Không (0)", horizontal=True)
             
