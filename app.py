@@ -3,148 +3,174 @@ import pandas as pd
 import numpy as np
 import xgboost as xgb
 import pickle
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import confusion_matrix, classification_report
 
-# --- CẤU HÌNH TRANG ---
-st.set_page_config(page_title="Food Delivery Analysis", layout="wide")
+# --- 0. CẤU HÌNH TRANG ---
+st.set_page_config(page_title="Phân tích khách hàng Foodie", layout="wide")
 
-# --- 1. SỬ DỤNG CACHE ĐỂ LOAD DỮ LIỆU & MODEL ---
+# --- 1. HÀM LOAD TÀI NGUYÊN (Dùng Cache) ---
 @st.cache_data
 def load_data():
-    # Lưu ý: Bạn nên để file csv này trong thư mục dự án
-    df = pd.read_csv('food_ordering_behavior_dataset.csv')
-    return df
+    # Tên file phải khớp chính xác trên GitHub
+    file_path = 'food_ordering_behavior_dataset.csv'
+    if os.path.exists(file_path):
+        return pd.read_csv(file_path).head(5000)
+    return pd.DataFrame() # Trả về df trống nếu ko thấy file
 
 @st.cache_resource
 def load_models():
-    # 1. Load danh sách cột (vẫn dùng pickle vì nó là list)
-    with open('models/model_columns.pkl', 'rb') as f:
+    # Sử dụng os.path.join để an toàn trên Linux/Windows
+    model_dir = 'models'
+    
+    # Load danh sách cột (Bắt buộc phải có để input đúng định dạng)
+    col_path = os.path.join(model_dir, 'model_columns.pkl')
+    with open(col_path, 'rb') as f:
         m_cols = pickle.load(f)
-    
-    # 2. Load Model Rating (.json)
-    m_rating = xgb.XGBRegressor()
-    m_rating.load_model('models/model_rating.pkl')
-    
-    # 3. Load Model Repeat (.json)
-    m_repeat = xgb.XGBClassifier()
-    m_repeat.load_model('models/model_repeat.pkl')
-    
+        
+    # Load Model Rating (XGBoost Regressor)
+    # Lưu ý: Nếu bạn dùng file .json thì đổi đuôi và dùng load_model()
+    r_path = os.path.join(model_dir, 'model_rating.pkl')
+    with open(r_path, 'rb') as f:
+        m_rating = pickle.load(f)
+        
+    # Load Model Repeat (XGBoost Classifier)
+    rep_path = os.path.join(model_dir, 'model_repeat.pkl')
+    with open(rep_path, 'rb') as f:
+        m_repeat = pickle.load(f)
+        
     return m_rating, m_repeat, m_cols
 
-# Load tài nguyên
+# Thực thi load
 df = load_data()
-model_rating, model_repeat, model_columns = load_models()
+try:
+    model_rating, model_repeat, model_columns = load_models()
+except Exception as e:
+    st.error(f"⚠️ Lỗi cấu hình: Hãy đảm bảo thư mục 'models' có đủ 3 file .pkl. Lỗi: {e}")
+    st.stop()
 
-# --- THANH ĐIỀU HƯỚNG (SIDEBAR) ---
-st.sidebar.title("Menu Điều Hướng")
-page = st.sidebar.radio("Chọn trang:", [
-    "Trang 1: Khám phá dữ liệu (EDA)", 
-    "Trang 2: Triển khai mô hình", 
-    "Trang 3: Đánh giá & Hiệu năng"
+# --- 2. THANH ĐIỀU HƯỚNG ---
+st.sidebar.image("https://cdn-icons-png.flaticon.com/512/1532/1532688.png", width=100)
+st.sidebar.title("Dự Báo Khách Hàng")
+page = st.sidebar.radio("Chọn trang hiển thị:", [
+    "🏠 Giới thiệu & EDA", 
+    "🔮 Dự báo thông minh", 
+    "📊 Đánh giá mô hình"
 ])
 
 # ---------------------------------------------------------
 # TRANG 1: GIỚI THIỆU & EDA
 # ---------------------------------------------------------
-if page == "Trang 1: Khám phá dữ liệu (EDA)":
-    st.title("📊 Giới thiệu & Khám phá dữ liệu")
+if page == "🏠 Giới thiệu & EDA":
+    st.title("📋 Giới thiệu Dự án & Khám phá Dữ liệu")
     
-    st.info("""
-    **Thông tin sinh viên:**
-    - Họ và tên: [Tên của bạn]
-    - MSSV: [MSSV của bạn]
-    - Đề tài: Dự báo mức độ hài lòng và hành vi tái mua hàng trong ngành giao đồ ăn.
-    """)
-    
-    st.subheader("1. Giá trị thực tiễn")
-    st.write("Ứng dụng giúp nhà hàng nhận diện khách hàng không hài lòng và dự báo khả năng quay lại, từ đó tối ưu hóa các chiến dịch Marketing và cải thiện dịch vụ.")
+    # Phần thông tin SV
+    with st.expander("ℹ️ Thông tin sinh viên & Đề tài", expanded=True):
+        st.write("**Họ tên:** [Tên của bạn]")
+        st.write("**MSSV:** [Mã số sinh viên]")
+        st.write("**Giá trị:** Dự báo sự hài lòng giúp nhà hàng cải thiện dịch vụ kịp thời.")
 
-    st.subheader("2. Dữ liệu thô (Raw Data)")
-    st.dataframe(df.head(10))
+    # Hiển thị dữ liệu
+    st.subheader("1. Dữ liệu mẫu")
+    st.dataframe(df.head(10), use_container_width=True)
 
-    st.subheader("3. Biểu đồ phân tích")
-    col1, col2 = st.columns(2)
+    # Biểu đồ
+    st.subheader("2. Phân tích trực quan")
+    c1, c2 = st.columns(2)
     
-    with col1:
-        st.write("**Phân phối Rating (Nhãn mục tiêu 1)**")
-        fig1, ax1 = plt.subplots()
-        sns.countplot(data=df, x='rating_given', palette='viridis', ax=ax1)
-        st.pyplot(fig1)
+    with c1:
+        st.write("**Phân phối Rating thực tế**")
+        fig, ax = plt.subplots()
+        sns.histplot(df['rating_given'], bins=5, color='orange', ax=ax)
+        st.pyplot(fig)
         
-    with col2:
-        st.write("**Tỷ lệ khách hàng quay lại (Nhãn mục tiêu 2)**")
+    with c2:
+        st.write("**Tương quan giữa Phí ship và Rating**")
         fig2, ax2 = plt.subplots()
-        df['is_repeat_order'].value_counts().plot.pie(autopct='%1.1f%%', ax=ax2, colors=['#ff9999','#66b3ff'])
+        sns.boxplot(x='rating_given', y='delivery_fee', data=df, palette='Set2', ax=ax2)
         st.pyplot(fig2)
 
-    st.write("**Nhận xét:** Dữ liệu có sự phân bổ khá đồng đều ở các mức Rating. Tuy nhiên, các đặc trưng như `delivery_fee` và `order_value` có sự tương quan mạnh đến quyết định quay lại của khách.")
+    st.info("💡 **Nhận xét:** Dữ liệu cho thấy phí giao hàng càng cao, khách hàng có xu hướng đánh giá khắt khe hơn.")
 
 # ---------------------------------------------------------
 # TRANG 2: TRIỂN KHAI MÔ HÌNH
 # ---------------------------------------------------------
-elif page == "Trang 2: Triển khai mô hình":
-    st.title("🚀 Dự báo trực tiếp")
+elif page == "🔮 Dự báo thông minh":
+    st.title("🔮 Hệ thống dự báo hành vi")
     
-    with st.form("input_form"):
-        st.subheader("Nhập thông tin đơn hàng")
-        col1, col2, col3 = st.columns(3)
+    st.markdown("---")
+    col_a, col_b = st.columns([1, 2])
+    
+    with col_a:
+        st.subheader("Nhập thông tin")
+        u_age = st.slider("Tuổi", 18, 70, 25)
+        u_val = st.number_input("Giá trị đơn (INR)", 100, 5000, 450)
+        u_fee = st.number_input("Phí ship (INR)", 0, 200, 40)
+        u_city = st.selectbox("Thành phố", ["Pune", "Mumbai", "Delhi", "Bangalore"])
+        u_mood = st.selectbox("Tâm trạng", ["Happy", "Lazy", "Hungry", "Celebrating"])
+        u_rain = st.radio("Trời mưa?", ["No", "Yes"])
         
-        with col1:
-            age = st.number_input("Tuổi", 18, 80, 25)
-            order_val = st.number_input("Giá trị đơn (INR)", 100, 5000, 500)
-            delivery_fee = st.number_input("Phí ship", 0, 200, 30)
-        with col2:
-            city = st.selectbox("Thành phố", ["Pune", "Mumbai", "Delhi", "Bangalore"])
-            mood = st.selectbox("Tâm trạng", ["Happy", "Hungry", "Lazy", "Stressed"])
-            order_time = st.selectbox("Thời gian", ["Morning", "Afternoon", "Evening", "Night"])
-        with col3:
-            cuisine = st.selectbox("Ẩm thực", ["Chinese", "North Indian", "South Indian", "Fast Food"])
-            hunger = st.selectbox("Mức đói", ["Low", "Medium", "High"])
-            rain = st.selectbox("Trời mưa?", ["Yes", "No"])
+        btn = st.button("🚀 Chạy dự báo", use_container_width=True)
 
-        submit = st.form_submit_button("Dự báo ngay")
+    with col_b:
+        st.subheader("Kết quả dự báo")
+        if btn:
+            # 1. Tiền xử lý Input (Khớp với One-hot Encoding)
+            input_df = pd.DataFrame(columns=model_columns).fillna(0)
+            input_df.loc[0, 'age'] = u_age
+            input_df.loc[0, 'order_value'] = u_val
+            input_df.loc[0, 'delivery_fee'] = u_fee
+            
+            # Gán 1 cho các cột One-hot
+            if f'city_{u_city}' in model_columns: input_df.loc[0, f'city_{u_city}'] = 1
+            if f'mood_{u_mood}' in model_columns: input_df.loc[0, f'mood_{u_mood}'] = 1
+            if f'rainy_weather_Yes' in model_columns and u_rain == "Yes": input_df.loc[0, 'rainy_weather_Yes'] = 1
 
-    if submit:
-        # Tiền xử lý dữ liệu nhập (phải khớp với model_columns)
-        input_data = pd.DataFrame(columns=model_columns).fillna(0)
-        # Gán giá trị số
-        input_data.loc[0, 'age'] = age
-        input_data.loc[0, 'order_value'] = order_val
-        input_data.loc[0, 'delivery_fee'] = delivery_fee
-        # Gán One-hot (ví dụ đơn giản)
-        if f'city_{city}' in model_columns: input_data.loc[0, f'city_{city}'] = 1
-        # ... (làm tương tự cho các biến selectbox khác)
-
-        # Dự đoán chuỗi
-        rating_raw = model_rating.predict(input_data)[0]
-        # Hàm stretch như trong code gốc
-        rating_pred = np.clip(3.0 + (rating_raw - 3.0) * 1.5, 1, 5)
-        
-        input_data['predicted_rating'] = rating_pred
-        prob_repeat = model_repeat.predict_proba(input_data)[:, 1][0]
-        
-        # Hiển thị
-        st.success(f"⭐ **Dự đoán đánh giá:** {rating_pred:.1f} sao")
-        st.info(f"🔁 **Xác suất quay lại:** {prob_repeat*100:.2f}%")
-        
-        if prob_repeat >= 0.47:
-            st.balloons()
-            st.write("👉 **Kết luận:** Khách hàng này **CÓ** khả năng cao sẽ quay lại!")
-        else:
-            st.write("👉 **Kết luận:** Khách hàng này **ÍT** có khả năng quay lại.")
+            # 2. Dự báo Rating
+            r_pred_raw = model_rating.predict(input_df)[0]
+            r_final = np.clip(3.0 + (r_pred_raw - 3.0) * 1.5, 1, 5) # Hàm stretch của bạn
+            
+            # 3. Dự báo Repeat Order
+            input_df['predicted_rating'] = r_final
+            prob_rep = model_repeat.predict_proba(input_df)[:, 1][0]
+            
+            # Hiển thị
+            st.metric("⭐️ Đánh giá dự kiến", f"{r_final:.1f} / 5.0")
+            
+            prog_color = "green" if prob_rep >= 0.47 else "red"
+            st.write(f"**Xác suất quay lại:** {prob_rep*100:.1f}%")
+            st.progress(prob_rep)
+            
+            if prob_rep >= 0.47:
+                st.success("✅ KẾT LUẬN: Khách hàng trung thành. Nên duy trì chăm sóc.")
+            else:
+                st.warning("⚠️ KẾT LUẬN: Nguy cơ rời bỏ cao. Cần tặng voucher giảm giá!")
 
 # ---------------------------------------------------------
 # TRANG 3: ĐÁNH GIÁ & HIỆU NĂNG
 # ---------------------------------------------------------
 else:
-    st.title("📈 Đánh giá hiệu năng mô hình")
+    st.title("📈 Phân tích hiệu năng mô hình")
     
-    st.subheader("1. Chỉ số đo lường")
-    c1, c2 = st.columns(2)
-    c1.metric("Rating MAE (Hồi quy)", "1.2112")
-    c2.metric("Repeat F1-Score (Phân loại)", "0.69")
+    col_x, col_y = st.columns(2)
+    with col_x:
+        st.subheader("1. Chỉ số đo lường")
+        st.write("- **Rating (XGBRegressor):** MAE = 1.2112")
+        st.write("- **Repeat (XGBClassifier):** F1-Score = 0.69 (tại Threshold 0.47)")
+        st.write("- **Độ chính xác ±1 sao:** 60.90%")
 
-    st.subheader("2. Ma trận nhầm lẫn (Confusion Matrix)")
-    # Giả sử bạn đã tính
+    with col_y:
+        st.subheader("2. Ma trận nhầm lẫn")
+        # Thay 'image_408e89.png' bằng tên file ảnh thực tế của bạn trên GitHub
+        if os.path.exists("image_408e89.png"):
+            st.image("image_408e89.png", caption="Confusion Matrix - Threshold 0.47")
+        else:
+            st.info("Vui lòng upload ảnh Confusion Matrix lên GitHub để hiển thị.")
+
+    st.subheader("3. Phân tích & Hướng cải thiện")
+    st.markdown("""
+    * **Phân tích:** Biến `predicted_rating` đứng đầu về mức độ quan trọng, chứng tỏ sự hài lòng ảnh hưởng trực tiếp đến việc đặt lại.
+    * **Hạn chế:** Sai số MAE 1.21 còn cao do dữ liệu thiếu các thông tin về chất lượng món ăn thực tế.
+    * **Cải thiện:** Cần thêm các biến về thời gian giao hàng thực tế (Actual Delivery Time) để mô hình chính xác hơn.
+    """)
