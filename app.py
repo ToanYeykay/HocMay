@@ -7,7 +7,7 @@ import seaborn as sns
 import os
 
 # --- 1. CẤU HÌNH TRANG ---
-st.set_page_config(page_title="Hệ Thống Phân Tích Foodie AI", layout="wide")
+st.set_page_config(page_title="Phân Tích", layout="wide")
 
 # --- 2. HÀM TẢI TÀI NGUYÊN (CÓ CACHE) ---
 @st.cache_resource
@@ -56,7 +56,7 @@ def load_analysis_data():
 # --- 3. TRANG NHẬP LIỆU & DỰ ĐOÁN ---
 def prediction_page():
     st.title("🚀 Dự Đoán Rating Khách Hàng")
-    st.markdown("Nhập thông tin đơn hàng để AI dự đoán mức độ hài lòng của khách.")
+    st.markdown("Nhập thông tin đơn hàng để dự đoán mức độ hài lòng của khách.")
 
     model, model_cols = load_prediction_model()
     if model is None: return
@@ -166,7 +166,7 @@ def analysis_page():
 # --- 5. ĐIỀU HƯỚNG CHÍNH ---
 def main():
     st.sidebar.title("🛠️ Điều hướng")
-    page = st.sidebar.radio("Chọn chức năng:", ["Dự đoán Rating", "Phân tích Dữ liệu AI"])
+    page = st.sidebar.radio("Chọn chức năng:", ["Dự đoán Rating", "Phân tích"])
 
     if page == "Dự đoán Rating":
         prediction_page()
