@@ -26,7 +26,7 @@ def load_prediction_model():
 @st.cache_data
 def load_analysis_data():
     """Tải dữ liệu 50.000 dòng để phân tích"""
-    file_path = 'food_ordering_behavior_dataset3.csv'
+    file_path = 'food_ordering_behavior_dataset.csv'
     if not os.path.exists(file_path):
         st.error(f"❌ Không tìm thấy file {file_path}. Vui lòng kiểm tra lại trên GitHub!")
         return None
