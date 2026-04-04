@@ -25,22 +25,34 @@ def load_prediction_model():
 
 @st.cache_data
 def load_analysis_data():
-    st.sidebar.subheader("🕵️ Kiểm tra thư mục server")
-    # Liệt kê tất cả file đang có tại thư mục gốc của app
-    all_files = os.listdir(".")
-    st.sidebar.write(all_files) 
-
-    file_path = 'food_ordering_behavior_dataset.csv'
+    file_path = 'food_ordering_behavior_dataset3.csv'
     
-    # Kiểm tra xem tên file bạn muốn có nằm trong danh sách all_files không
-    if file_path not in all_files:
-        st.error(f"❌ Không tìm thấy file '{file_path}'")
-        st.info("💡 Gợi ý: Hãy nhìn vào danh sách file ở Sidebar bên trái. Nếu bạn thấy tên file khác một chút (ví dụ viết hoa, hoặc đuôi .CSV), hãy sửa lại code cho giống hệt!")
+    # 1. Kiểm tra file có tồn tại không
+    if not os.path.exists(file_path):
+        st.error("❌ Không tìm thấy file trên server!")
         return None
-    
-    df = pd.read_csv(file_path)
-    return df
 
+    # 2. Kiểm tra dung lượng file
+    file_size = os.path.getsize(file_path)
+    if file_size < 500: # Nếu file dưới 500 byte thì chắc chắn là lỗi
+        st.error(f"⚠️ File CSV hiện tại quá nhỏ ({file_size} bytes). Đây có thể là file lỗi từ GitHub LFS!")
+        st.info("💡 Cách sửa: Hãy upload trực tiếp file CSV từ máy tính lên GitHub Web (Add file -> Upload).")
+        return None
+
+    try:
+        # 3. Thử đọc file
+        df = pd.read_csv(file_path)
+        if df.empty:
+            st.error("❌ File CSV tồn tại nhưng không có dữ liệu!")
+            return None
+        df.columns = df.columns.str.strip()
+        return df
+    except pd.errors.EmptyDataError:
+        st.error("❌ Lỗi: File CSV hoàn toàn trống rỗng!")
+        return None
+    except Exception as e:
+        st.error(f"❌ Lỗi không xác định: {e}")
+        return None
 # --- 3. TRANG NHẬP LIỆU & DỰ ĐOÁN ---
 def prediction_page():
     st.title("🚀 Dự Đoán Rating Khách Hàng")
