@@ -30,7 +30,7 @@ def load_analysis_data():
     all_files = os.listdir(".")
     st.sidebar.write(all_files) 
 
-    file_path = 'food_ordering_behavior_dataset3.csv'
+    file_path = 'food_ordering_behavior_dataset.csv'
     
     # Kiểm tra xem tên file bạn muốn có nằm trong danh sách all_files không
     if file_path not in all_files:
