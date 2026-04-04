@@ -124,18 +124,18 @@ def prediction_page():
 
 # --- 4. TRANG PHÂN TÍCH DASHBOARD ---
 def analysis_page():
-    st.title("📊 Hệ Thống Phân Tích Hành Vi & Dự Báo AI")
+    st.title("phân tích hành vi và dự báo")
     df = load_analysis_data()
     if df is None: return
 
     # --- TAB PHÂN CHIA ---
-    tab1, tab2, tab3 = st.tabs(["📈 Tổng Quan Doanh Nghiệp", "🤖 Chi tiết Mô hình AI", "👥 Hành Vi Khách Hàng"])
+    tab1, tab2, tab3 = st.tabs(["Tổng Quan", "Chi tiết", "Hành Vi Khách Hàng"])
 
     with tab1:
         # 4 Chỉ số chính (Metrics)
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Tổng Đơn Hàng", f"{len(df):,}")
-        m2.metric("Rating Trung Bình", f"{df['rating_given'].mean():.2f} ⭐")
+        m2.metric("Rating Trung Bình", f"{df['rating_given'].mean():.2f} ")
         m3.metric("Giá Trị Đơn Trung Bình", f"{int(df['order_value'].mean()):,}đ")
         m4.metric("Tỉ Lệ Quay Lại", f"{(df['is_repeat_order'].mean()*100):.1f}%")
 
@@ -150,13 +150,13 @@ def analysis_page():
             st.plotly_chart(fig_city, use_container_width=True)
 
         with col_b:
-            st.subheader("🍱 Hiệu suất theo Loại Ẩm Thực")
+            st.subheader("Hiệu suất theo Loại Ẩm Thực")
             cuisine_rating = df.groupby('cuisine')['rating_given'].mean().reset_index().sort_values('rating_given')
             fig_cuisine = px.line(cuisine_rating, x='cuisine', y='rating_given', markers=True, title="Xu hướng hài lòng theo món ăn")
             st.plotly_chart(fig_cuisine, use_container_width=True)
 
     with tab2:
-        st.subheader("🧠 Giải thích mô hình XGBoost")
+        st.subheader("Giải thích mô hình XGBoost")
         st.write("Dưới đây là các yếu tố quan trọng nhất mà AI sử dụng để đưa ra dự đoán.")
         
         # Giả lập Feature Importance từ XGBoost (Vì chúng ta đã biết logic "phù phép")
@@ -169,10 +169,10 @@ def analysis_page():
                         title="Độ quan trọng của các tính năng (Feature Importance)")
         st.plotly_chart(fig_fi, use_container_width=True)
         
-        st.info("💡 **Nhận xét:** Phí vận chuyển là yếu tố ảnh hưởng mạnh nhất (45%) đến quyết định đánh giá của khách hàng.")
+        st.info("**Nhận xét:** Phí vận chuyển là yếu tố ảnh hưởng mạnh nhất (45%) đến quyết định đánh giá của khách hàng.")
 
     with tab3:
-        st.subheader("⏰ Phân tích Thời điểm & Tâm trạng")
+        st.subheader("Phân tích Thời điểm & Tâm trạng")
         
         c1, c2 = st.columns(2)
         with c1:
