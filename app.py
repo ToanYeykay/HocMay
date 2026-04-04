@@ -124,7 +124,7 @@ def prediction_page():
 
 # --- 4. TRANG PHÂN TÍCH DASHBOARD ---
 def analysis_page():
-    st.title("phân tích hành vi và dự báo")
+    st.title("Phân tích hành vi và dự báo")
     df = load_analysis_data()
     if df is None: return
 
@@ -157,7 +157,7 @@ def analysis_page():
 
     with tab2:
         st.subheader("Giải thích mô hình XGBoost")
-        st.write("Dưới đây là các yếu tố quan trọng nhất mà AI sử dụng để đưa ra dự đoán.")
+        st.write("Dưới đây là các yếu tố quan trọng nhất để đưa ra dự đoán.")
         
         # Giả lập Feature Importance từ XGBoost (Vì chúng ta đã biết logic "phù phép")
         # Trong thực tế bạn có thể lấy trực tiếp từ model.feature_importances_
@@ -168,8 +168,6 @@ def analysis_page():
         fig_fi = px.bar(fi_df, x='Importance', y='Feature', orientation='h', 
                         title="Độ quan trọng của các tính năng (Feature Importance)")
         st.plotly_chart(fig_fi, use_container_width=True)
-        
-        st.info("**Nhận xét:** Phí vận chuyển là yếu tố ảnh hưởng mạnh nhất (45%) đến quyết định đánh giá của khách hàng.")
 
     with tab3:
         st.subheader("Phân tích Thời điểm & Tâm trạng")
@@ -186,10 +184,6 @@ def analysis_page():
             mood_hunger = df.groupby(['mood', 'hunger_level'])['rating_given'].mean().unstack()
             fig_heat = px.imshow(mood_hunger, text_auto=True, color_continuous_scale='Viridis', title="Ma trận hài lòng (Mood vs Hunger)")
             st.plotly_chart(fig_heat, use_container_width=True)
-
-    # Bảng dữ liệu cuối trang
-    with st.expander("📄 Truy xuất dữ liệu thô"):
-        st.dataframe(df.head(50), use_container_width=True)
 
 # --- 5. ĐIỀU HƯỚNG CHÍNH ---
 def main():
