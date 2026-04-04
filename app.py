@@ -19,12 +19,18 @@ def load_data():
 
 @st.cache_resource
 def load_models():
-    with open('models/model_rating.pkl', 'rb') as f:
-        m_rating = pickle.load(f)
-    with open('models/model_repeat.pkl', 'rb') as f:
-        m_repeat = pickle.load(f)
+    # 1. Load danh sách cột (vẫn dùng pickle vì nó là list)
     with open('models/model_columns.pkl', 'rb') as f:
         m_cols = pickle.load(f)
+    
+    # 2. Load Model Rating (.json)
+    m_rating = xgb.XGBRegressor()
+    m_rating.load_model('models/model_rating.json')
+    
+    # 3. Load Model Repeat (.json)
+    m_repeat = xgb.XGBClassifier()
+    m_repeat.load_model('models/model_repeat.json')
+    
     return m_rating, m_repeat, m_cols
 
 # Load tài nguyên
