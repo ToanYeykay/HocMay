@@ -19,7 +19,6 @@ def load_data():
 
 @st.cache_resource
 def load_models():
-    # Giả sử bạn đã lưu model vào thư mục models/ sau khi chạy trên Colab
     with open('models/model_rating.pkl', 'rb') as f:
         m_rating = pickle.load(f)
     with open('models/model_repeat.pkl', 'rb') as f:
