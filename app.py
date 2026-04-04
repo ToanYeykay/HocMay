@@ -25,7 +25,7 @@ def load_prediction_model():
 
 @st.cache_data
 def load_analysis_data():
-    file_path = 'food_ordering_behavior_dataset3.csv'
+    file_path = 'food_ordering_behavior_dataset.csv'
     
     # 1. Kiểm tra file có tồn tại không
     if not os.path.exists(file_path):
