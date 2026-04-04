@@ -25,18 +25,18 @@ def load_models():
     model_dir = 'models'
     
     # Load danh sách cột (Bắt buộc phải có để input đúng định dạng)
-    col_path = os.path.join(model_dir, 'model_columns.pkl')
+    col_path = os.path.join(model_dir, 'models/model_columns.pkl')
     with open(col_path, 'rb') as f:
         m_cols = pickle.load(f)
         
     # Load Model Rating (XGBoost Regressor)
     # Lưu ý: Nếu bạn dùng file .json thì đổi đuôi và dùng load_model()
-    r_path = os.path.join(model_dir, 'model_rating.pkl')
+    r_path = os.path.join(model_dir, 'models/model_rating.pkl')
     with open(r_path, 'rb') as f:
         m_rating = pickle.load(f)
         
     # Load Model Repeat (XGBoost Classifier)
-    rep_path = os.path.join(model_dir, 'model_repeat.pkl')
+    rep_path = os.path.join(model_dir, 'models/model_repeat.pkl')
     with open(rep_path, 'rb') as f:
         m_repeat = pickle.load(f)
         
