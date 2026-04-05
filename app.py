@@ -71,57 +71,72 @@ if page == "Giới thiệu & EDA":
 # ---------------------------------------------------------
 # TRANG 2: TRIỂN KHAI MÔ HÌNH
 # ---------------------------------------------------------
-elif page == "Dự đoán Rating":
-    st.title("🤖 Dự đoán mức độ hài lòng khách hàng")
-    
-    # Load mô hình
+else:
+    st.title("🤖 Dự Đoán Rating Khách Hàng")
+
+    # Load model
     try:
         model = joblib.load('model_xgb.pkl')
     except:
-        st.error("Không tìm thấy file model_xgb.pkl. Hãy upload file mô hình lên GitHub.")
+        st.warning("⚠️ Chưa tìm thấy file 'model_xgb.pkl'. Vui lòng huấn luyện và lưu mô hình trước.")
         st.stop()
 
-    st.write("### Nhập thông tin khách hàng")
-    
-    col_in1, col_in2 = st.columns(2)
-    
-    with col_in1:
-        total_spent = st.number_input("Tổng số tiền đã chi tiêu (đơn vị tiền tệ):", min_value=0, value=5000)
-        order_count = st.number_input("Tổng số đơn hàng đã đặt:", min_value=1, value=5)
-    
-    with col_in2:
-        mood_label = st.selectbox("Tâm trạng thường xuyên khi đặt hàng:", 
-                                 ['Stressed (Căng thẳng)', 'Lazy (Lười biếng)', 'Happy (Vui vẻ)', 'Celebrating (Ăn mừng)'])
-        # Chuyển label về mood_score tương ứng lúc huấn luyện
-        mood_mapping = {'Stressed (Căng thẳng)': 1, 'Lazy (Lười biếng)': 2, 'Happy (Vui vẻ)': 3, 'Celebrating (Ăn mừng)': 4}
-        avg_mood = mood_mapping[mood_label]
+    # Form nhập liệu
+    with st.expander("📝 Nhập thông tin chi tiết đơn hàng", expanded=True):
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            u_id = st.text_input("Mã khách hàng (User ID):", "22T102")
+            age = st.number_input("Độ tuổi:", 18, 100, 25)
+            city = st.selectbox("Thành phố:", df['city'].unique())
+        with c2:
+            mood = st.selectbox("Tâm trạng khách hàng:", ['Stressed', 'Lazy', 'Happy', 'Celebrating'])
+            cuisine = st.selectbox("Loại ẩm thực:", df['cuisine'].unique())
+            res_type = st.selectbox("Loại nhà hàng:", df['restaurant_type'].unique())
+        with c3:
+            order_val = st.number_input("Giá trị đơn hàng (Order Value):", 100, 2000, 500)
+            order_cnt = st.number_input("Tổng số đơn đã đặt (Order Count):", 1, 100, 10)
+            time_order = st.number_input("Thời gian giao (Time Taken):", 5, 120, 30)
 
-    # Xử lý logic dự đoán
-    if st.button("Dự đoán ngay"):
-        # Tạo mảng input đúng định dạng (XGBoost cần DataFrame hoặc mảng 2D)
-        input_data = pd.DataFrame([[total_spent, avg_mood, order_count]], 
+        # Các widget bổ sung cho đầy đủ bộ dữ liệu
+        c4, c5, c6 = st.columns(3)
+        with c4:
+            meal_type = st.selectbox("Bữa ăn:", df['meal_type'].unique())
+        with c5:
+            weather = st.radio("Thời tiết mưa?", ["No", "Yes"], horizontal=True)
+        with c6:
+            is_repeat = st.radio("Khách quay lại?", ["No", "Yes"], horizontal=True)
+
+    # Nút dự đoán
+    if st.button("🚀 Thực hiện dự đoán"):
+        # Tiền xử lý Input (Chỉ lấy các biến model cần: total_spent, avg_mood, order_count)
+        mood_map = {'Stressed': 1, 'Lazy': 2, 'Happy': 3, 'Celebrating': 4}
+        
+        # Tạo mảng input đúng cột như lúc train model
+        # Giả sử X_train của Toàn gồm: [total_spent, avg_mood, order_count]
+        input_data = pd.DataFrame([[order_val, mood_map[mood], order_cnt]], 
                                  columns=['total_spent', 'avg_mood', 'order_count'])
         
-        prediction = model.predict(input_data)[0]
-        
+        # Dự đoán
+        pred = model.predict(input_data)[0]
+        pred = max(1, min(5, pred)) # Đảm bảo nằm trong khoảng 1-5 sao
+
+        # Hiển thị kết quả
         st.divider()
-        st.write("### Kết quả phân tích:")
-        
-        # Hiển thị kết quả rõ ràng
         res_col1, res_col2 = st.columns(2)
         
         with res_col1:
-            st.metric(label="Rating Dự Đoán", value=f"{prediction:.2f} ⭐")
+            st.metric("⭐️ Rating dự đoán:", f"{pred:.1f} / 5.0")
             
         with res_col2:
-            # Vì là mô hình Regressor, độ tin cậy có thể tính theo độ lệch chuẩn hoặc hiển thị mức độ
-            confidence = "Cao" if prediction > 3.5 else "Trung bình"
-            st.write(f"**Độ tin cậy của mô hình:** {confidence}")
-            st.progress(min(prediction/5, 1.0))
+            # Tính độ tin cậy dựa trên điểm số (Ví dụ đơn giản)
+            confidence = "Cao" if pred > 4.0 or pred < 2.0 else "Trung bình"
+            st.write(f"**Độ tin cậy:** {confidence}")
+            st.progress(min(pred/5, 1.0))
 
-        if prediction >= 4:
-            st.success("Đây là một khách hàng tiềm năng và hài lòng!")
-        elif prediction >= 3:
-            st.warning("Khách hàng ở mức trung bình, cần cải thiện dịch vụ.")
+        # Nhận xét kết quả
+        if pred >= 4:
+            st.success(f"Khách hàng {u_id} có khả năng cao sẽ hài lòng với dịch vụ!")
+        elif pred >= 3:
+            st.info("Khách hàng ở mức độ hài lòng vừa phải.")
         else:
-            st.error("Cảnh báo: Khách hàng này có nguy cơ rời bỏ nền tảng!")
+            st.error("Cảnh báo: Khách hàng có xu hướng đánh giá thấp đơn hàng này!")
