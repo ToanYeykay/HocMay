@@ -110,7 +110,7 @@ else:
         
         # Tạo mảng input đúng cột như lúc train model
         # Giả sử X_train của Toàn gồm: [total_spent, avg_mood, order_count]
-        input_data = pd.DataFrame([[order_val, mood_map[mood], order_cnt]], 
+        input_data = pd.DataFrame([[order_val, mood_map[mood]]], 
                                  columns=['total_spent', 'avg_mood', 'order_count'])
         
         # Dự đoán
