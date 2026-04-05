@@ -57,7 +57,7 @@ if page == "Trang 1: Giới thiệu & EDA":
     st.markdown("""
     ### Giá trị thực tiễn
     Ứng dụng giúp doanh nghiệp nhận diện trải nghiệm khách hàng ngay tại thời điểm đặt hàng. 
-    Bằng cách kết hợp dữ liệu lịch sử và đơn hàng hiện tại, AI sẽ dự báo **Rating** và **Tỉ lệ quay lại**, 
+    Bằng cách kết hợp dữ liệu lịch sử và đơn hàng hiện tại, mô hình sẽ dự báo **Rating** và **Tỉ lệ quay lại**, 
     từ đó giúp nhà quản lý tối ưu hóa quy trình vận hành và các chiến dịch khuyến mãi giữ chân khách hàng.
     """)
 
@@ -189,7 +189,7 @@ elif page == "Trang 2: Triển khai Mô hình":
 # TRANG 3: ĐÁNH GIÁ & HIỆU NĂNG (EVALUATION)
 # ---------------------------------------------------------
 elif page == "Trang 3: Đánh giá & Hiệu năng":
-    st.title("📉 Đánh Giá Hiệu Năng Mô Hình AI")
+    st.title("Đánh Giá Hiệu Năng Mô Hình")
     try:
         model_rating = joblib.load('models/model_xgb.pkl')
         model_repeat = joblib.load('models/model_repeat.pkl')
@@ -240,7 +240,7 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
         y_forecast = y_real + np.random.normal(0, 0.2, 100)
         sns.regplot(x=y_real, y=y_forecast, scatter_kws={'alpha':0.5}, line_kws={'color':'red'}, ax=ax_reg)
         ax_reg.set_xlabel("Giá trị thực tế (Stars)")
-        ax_reg.set_ylabel("AI Dự báo (Stars)")
+        ax_reg.set_ylabel("Dự báo (Stars)")
         st.pyplot(fig_reg)
 
     # --- TRONG TAB 2: QUAY LẠI (CLASSIFICATION & %) ---
@@ -268,7 +268,7 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
             sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', ax=ax_cm,
                         xticklabels=['Không quay lại', 'Quay lại'],
                         yticklabels=['Không quay lại', 'Quay lại'])
-            ax_cm.set_xlabel('Dự đoán từ AI')
+            ax_cm.set_xlabel('Dự đoán')
             ax_cm.set_ylabel('Thực tế khách hàng')
             st.pyplot(fig_cm)
             st.caption("Ma trận cho biết số lượng dự đoán đúng (đường chéo) và dự đoán sai.")
