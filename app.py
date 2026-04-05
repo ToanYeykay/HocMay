@@ -6,10 +6,8 @@ import joblib
 import numpy as np
 import xgboost as xgb
 
-# --- 1. CẤU HÌNH TRANG ---
 st.set_page_config(page_title="Dự báo Food Delivery - Lê Tấn Toàn", layout="wide")
 
-# --- 2. HÀM LOAD DỮ LIỆU & DATABASE ---
 @st.cache_data
 def load_data():
     # Đọc dữ liệu từ file CSV gốc
@@ -38,17 +36,14 @@ except:
     st.error("Không tìm thấy file 'food_ordering_behavior_dataset.csv'. Vui lòng kiểm tra lại!")
     st.stop()
 
-# --- 3. SIDEBAR ĐIỀU HƯỚNG ---
 st.sidebar.title("Menu Quản Lý")
 page = st.sidebar.radio("Chuyển trang:", ["Trang 1: Giới thiệu & EDA", "Trang 2: Triển khai Mô hình"])
 
 # ---------------------------------------------------------
-# TRANG 1: GIỚI THIỆU & KHÁM PHÁ DỮ LIỆU (EDA)
+# TRANG 1
 # ---------------------------------------------------------
 if page == "Trang 1: Giới thiệu & EDA":
     st.title("Khám Phá Dữ Liệu Hành Vi Đặt Hàng")
-    
-    # --- THÔNG TIN BẮT BUỘC ---
     st.info(f"""
     **Tên đề tài:** Dự báo mức độ hài lòng và tỉ lệ quay lại của khách hàng Food Delivery  
     **Sinh viên thực hiện:** Lê Tấn Toàn  
@@ -63,8 +58,6 @@ if page == "Trang 1: Giới thiệu & EDA":
     """)
 
     st.divider()
-
-    # --- NỘI DUNG KỸ THUẬT ---
     st.subheader("1. Hiển thị dữ liệu mẫu (Raw Data)")
     st.dataframe(df.head(10), use_container_width=True)
 
@@ -93,10 +86,10 @@ if page == "Trang 1: Giới thiệu & EDA":
     """)
 
 # ---------------------------------------------------------
-# TRANG 2: TRIỂN KHAI MÔ HÌNH (DỰ BÁO TỔNG HỢP)
+# TRANG 2
 # ---------------------------------------------------------
 else:
-    st.title("Hệ Thống Dự Báo AI Thông Minh")
+    st.title("Dự Báo và Phân Tích")
 
     # Load mô hình (.pkl)
     try:
@@ -124,32 +117,24 @@ else:
         submit_btn = st.form_submit_button("Thực hiện phân tích tổng hợp")
 
     if submit_btn:
-        # --- BƯỚC 1: XỬ LÝ ĐẦU VÀO ---
         mood_map = {'Stressed': 1.0, 'Lazy': 2.0, 'Happy': 3.0, 'Celebrating': 4.0}
         curr_mood = float(mood_map[mood_label])
         curr_val = float(order_val)
-
-        # --- BƯỚC 2: TRA CỨU LỊCH SỬ TỪ CSDL ---
         user_record = user_df[user_df['user_id'] == str(u_id)]
         
         if not user_record.empty:
-            st.info(f"📍 Khách hàng cũ: Đã có {int(user_record['order_count'].values[0])} đơn hàng trong lịch sử.")
+            st.info(f"Khách hàng cũ: Đã có {int(user_record['order_count'].values[0])} đơn hàng trong lịch sử.")
             hist_spent = float(user_record['total_spent'].values[0])
             hist_rating = float(user_record['avg_rating'].values[0])
             hist_mood = float(user_record['avg_mood'].values[0])
             hist_count = int(user_record['order_count'].values[0])
         else:
-            st.warning("📍 Khách hàng mới: Chưa có dữ liệu lịch sử.")
+            st.warning("Khách hàng mới: Chưa có dữ liệu lịch sử.")
             hist_spent, hist_rating, hist_mood, hist_count = 0.0, 3.0, 3.0, 0
-
-        # --- BƯỚC 3: DỰ ĐOÁN RATING (MODEL 1) ---
         input_r = pd.DataFrame([[curr_val, curr_mood, 1.0]], 
                               columns=['total_spent', 'avg_mood', 'order_count'])
         pred_rating = float(model_rating.predict(input_r)[0])
         pred_rating = max(1.0, min(5.0, pred_rating))
-
-        # --- BƯỚC 4: DỰ ĐOÁN % QUAY LẠI  ---
-        # Tính toán chỉ số tích lũy mới
         new_total_spent = hist_spent + curr_val
         new_order_count = hist_count + 1
         new_avg_rating = (hist_rating * hist_count + pred_rating) / new_order_count
@@ -168,17 +153,14 @@ else:
         except:
             proba_raw = model_repeat.predict_proba(input_rep.values)[0][1]
 
-        # --- BƯỚC 5: LOGIC BASELINE 50% ---
-        sensitivity = 1.4 # Tăng độ nhạy cho demo
+        sensitivity = 1.4
         proba_final = 50 + (float(proba_raw) - 0.5) * 100 * sensitivity
         
-        # Thêm biến thiên nhỏ dựa trên ID để kết quả sinh động
         random_factor = (hash(u_id) % 10) - 5
         proba_final = max(15.0, min(98.5, proba_final + random_factor))
 
-        # --- HIỂN THỊ KẾ QUẢ ---
         st.divider()
-        st.subheader("Kết quả phân tích từ AI")
+        st.subheader("Kết quả phân tích")
         res_col1, res_col2 = st.columns(2)
 
         with res_col1:
