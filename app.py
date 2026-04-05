@@ -101,7 +101,7 @@ else:
         with res2:
             status = "Hài lòng" if pred >= 4 else "Bình thường" if pred >= 3 else "Không hài lòng"
             st.write(f"**Trạng thái dự kiến:** {status}")
-            st.progress(min(pred/5, 1.0))
+            st.progress(float(max(0.0, min(pred/5, 1.0))))
 
         if pred >= 4:
             st.success(f"Khách hàng {u_id} nhiều khả năng sẽ đánh giá tốt!")
