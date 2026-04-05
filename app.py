@@ -180,8 +180,8 @@ elif page == "Trang 2: Triển khai Mô hình":
         ltv = new_total_spent * (proba_final / 100) * 1.5
         c3.metric("Giá trị ước tính (LTV)", f"{ltv:,.0f} đ")
 
-        
-
+        # Hàng 1: Kết quả chính
+        res_col1, res_col2 = st.columns(2)
         with res_col1:
             st.metric("Rating dự báo", f"{pred_rating:.2f} / 5.0")
             p_val_r = float(max(0.0, min(pred_rating/5, 1.0)))
