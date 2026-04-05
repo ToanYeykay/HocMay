@@ -301,14 +301,6 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
             ax_loss.legend()
             st.pyplot(fig_loss)
             
-        with col_h2:
-            st.write("**Accuracy Curve**")
-            fig_acc, ax_acc = plt.subplots()
-            ax_acc.plot(iters, train_acc, label='Accuracy', color='blue')
-            ax_acc.set_ylim(0, 1.0)
-            ax_acc.set_xlabel("Vòng lặp")
-            ax_acc.legend()
-            st.pyplot(fig_acc)
 
     # 4. NHẬN ĐỊNH SAI SỐ
     st.divider()
