@@ -138,6 +138,31 @@ elif page == "Trang 2: Triển khai Mô hình":
         input_r = pd.DataFrame([[curr_val, curr_mood, 1.0]], 
                               columns=['total_spent', 'avg_mood', 'order_count'])
         pred_rating = float(model_rating.predict(input_r)[0])
+
+        input_r = pd.DataFrame([[float(order_val), curr_mood, 1.0]], 
+                              columns=['total_spent', 'avg_mood', 'order_count'])
+        
+        try:
+            pred_r = model_rating.predict(input_r.values)[0] 
+        except:
+            pred_r = model_rating.predict(np.array([[float(order_val), curr_mood, 1.0]]))[0]
+            
+        pred_rating = float(max(1.0, min(5.0, pred_r)))
+
+        new_total_spent = hist_spent + float(order_val)
+        new_order_count = hist_count + 1
+        new_avg_rating = (hist_rating * hist_count + pred_rating) / new_order_count
+        new_avg_mood = (hist_mood * hist_count + curr_mood) / new_order_count
+
+        # Cột: ['total_spent', 'avg_rating', 'avg_mood']
+        input_rep = pd.DataFrame([[new_total_spent, new_avg_rating, new_avg_mood]], 
+                                columns=['total_spent', 'avg_rating', 'avg_mood'])
+        
+        # DÙNG .values TƯƠNG TỰ ĐỂ KHÔNG BỊ LỖI
+        try:
+            proba_raw = model_repeat.predict_proba(input_rep.values)[0][1]
+        except:
+            proba_raw = model_repeat.predict_proba(np.array([[new_total_spent, new_avg_rating, new_avg_mood]]))[0][1]
         pred_rating = max(1.0, min(5.0, pred_rating))
         new_total_spent = hist_spent + curr_val
         new_order_count = hist_count + 1
