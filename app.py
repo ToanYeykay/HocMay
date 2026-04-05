@@ -94,7 +94,6 @@ else:
             res_type = st.selectbox("Loại nhà hàng:", df['restaurant_type'].unique())
         with c3:
             order_val = st.number_input("Giá trị đơn hàng (Order Value):", 100, 2000, 500)
-            order_cnt = st.number_input("Tổng số đơn đã đặt (Order Count):", 1, 100, 10)
             time_order = st.number_input("Thời gian giao (Time Taken):", 5, 120, 30)
 
         # Các widget bổ sung cho đầy đủ bộ dữ liệu
