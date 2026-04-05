@@ -97,8 +97,8 @@ elif page == "Trang 2: Triển khai Mô hình":
 
     # Load mô hình (.pkl)
     try:
-        model_rating = joblib.load('models/model_repeat.pkl')
-        model_repeat = joblib.load('models/model_xgb.pkl')
+        model_rating = joblib.load('model_repeat.pkl')
+        model_repeat = joblib.load('model_xgb.pkl')
     except:
         st.warning("Không tìm thấy file model_xgb.pkl hoặc model_repeat.pkl!")
         st.stop()
@@ -181,7 +181,7 @@ elif page == "Trang 2: Triển khai Mô hình":
             else: st.error(f"Chỉ số trung thành: Rủi ro (-{(50-proba_final):.1f}%)")
 
         st.success(f"**Hồ sơ tích lũy:** Tổng chi tiêu {new_total_spent:,.0f} | Tổng đơn: {new_order_count}")
-    # ---------------------------------------------------------
+# ---------------------------------------------------------
 # TRANG 3: ĐÁNH GIÁ & HIỆU NĂNG (EVALUATION)
 # ---------------------------------------------------------
 elif page == "Trang 3: Đánh giá & Hiệu năng":
