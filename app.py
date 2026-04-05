@@ -12,7 +12,7 @@ st.set_page_config(page_title="Hệ thống Quản lý & Dự báo Food Delivery
 @st.cache_data
 def load_and_prep_data():
     # Đọc dữ liệu gốc
-    df = pd.read_csv('food_ordering_behavior_dataset.csv')
+    df = pd.read_csv('food_ordering_behavior_dataset.csv.csv')
     
     # Tạo mood_score để tính toán
     mood_map = {'Celebrating': 4, 'Happy': 3, 'Lazy': 2, 'Stressed': 1}
