@@ -165,8 +165,6 @@ elif page == "Trang 2: Triển khai Mô hình":
 
         st.divider()
         st.subheader("Kết quả phân tích")
-        st.divider()
-        st.subheader("📊 Kết quả phân tích & Chỉ số chi tiết")
 
         st.write("---")
         # Hàng 1: Kết quả chính
