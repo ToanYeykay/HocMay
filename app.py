@@ -218,43 +218,40 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
 
     # --- TAB 2: EVALUATION CHO QUAY LẠI (CLASSIFICATION) ---
     with tab_eval2:
-        st.subheader("Chỉ số hiệu năng Classification (Dự báo Quay lại)")
-        
-        # Hiển thị bộ 3 chỉ số quan trọng nhất của phân loại
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Accuracy", "89.2%", help="Tỉ lệ đoán đúng trên tổng số mẫu.")
-        m2.metric("Precision", "0.87", help="Khả năng đoán đúng khách quay lại mà không bị nhầm.")
-        m3.metric("Recall", "0.89", help="Khả năng không bỏ sót khách hàng thực sự quay lại.")
-        
-        # CHỈ SỐ F1-SCORE (Yêu cầu quan trọng)
-        m4.metric("F1-Score", "0.88", delta="Rất tốt", 
-                  help="Trung bình điều hòa giữa Precision và Recall. Đây là chỉ số quan trọng nhất khi dữ liệu không cân bằng.")
+        st.subheader("Chỉ số hiệu năng thực tế (Dynamic)")
 
-        st.divider()
-        col_c1, col_c2 = st.columns(2)
+        # 1. Chuẩn bị dữ liệu để Test (Giống lúc Train)
+        # Giả sử ta lấy 20% dữ liệu cuối làm tập Test
+        test_df = user_df.sample(frac=0.2, random_state=42)
+        X_test = test_df[['total_spent', 'avg_rating', 'avg_mood']].values
         
-        with col_c1:
-            st.write("**Confusion Matrix**")
-            # Matrix giả lập cho thấy mô hình ít nhầm lẫn
-            cm = np.array([[42, 8], [5, 45]])
-            fig_cm, ax_cm = plt.subplots()
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Greens', ax=ax_cm,
-                        xticklabels=['Rời bỏ', 'Quay lại'], yticklabels=['Rời bỏ', 'Quay lại'])
-            st.pyplot(fig_cm)
-            
+        # Nhãn thực tế (Giả định nhãn quay lại là những người có số đơn > 1)
+        y_true = (test_df['order_count'] > 1).astype(int)
 
-        with col_c2:
-            st.write("**Ý nghĩa của F1-Score trong bài toán này**")
-            st.info("""
-            - **F1-Score (0.88):** Cho thấy mô hình đạt được sự cân bằng tối ưu. 
-            - Nó giúp doanh nghiệp vừa không lãng phí mã giảm giá cho người không quay lại (Precision), 
-            vừa không bỏ lỡ những khách hàng tiềm năng thực sự (Recall).
-            """)
+        # 2. Dùng mô hình đã load để dự đoán
+        y_pred = model_repeat.predict(X_test)
+
+        # 3. Tính toán các chỉ số thật
+        from sklearn.metrics import f1_score, confusion_matrix, accuracy_score
+        f1 = f1_score(y_true, y_pred)
+        acc = accuracy_score(y_true, y_pred)
+        cm = confusion_matrix(y_true, y_pred)
+
+        # 4. Hiển thị lên màn hình
+        m1, m2 = st.columns(2)
+        m1.metric("Accuracy thực tế", f"{acc*100:.1f}%")
+        m2.metric("F1-Score thực tế", f"{f1:.2f}")
+
+        st.write("**Confusion Matrix từ dữ liệu thật:**")
+        fig_cm, ax_cm = plt.subplots()
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Oranges', ax=ax_cm,
+                    xticklabels=['Rời bỏ', 'Quay lại'], yticklabels=['Rời bỏ', 'Quay lại'])
+        st.pyplot(fig_cm)
             
 
     # --- PHÂN TÍCH SAI SỐ & CẢI THIỆN ---
     st.divider()
-    st.subheader("🔍 Phân tích sai số & Hướng cải thiện")
+    st.subheader("Phân tích sai số & Hướng cải thiện")
     
     with st.expander("Xem nhận định chi tiết về sai số"):
         st.write("""
