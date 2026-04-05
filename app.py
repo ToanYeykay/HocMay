@@ -44,7 +44,7 @@ page = st.sidebar.radio("Chuyển trang:", ["Trang 1: Giới thiệu & EDA", "Tr
 # TRANG 1: GIỚI THIỆU & EDA
 # ---------------------------------------------------------
 if page == "Trang 1: Giới thiệu & EDA":
-    st.title("📊 Khám Phá Dữ Liệu Food Ordering")
+    st.title("Khám Phá Dữ Liệu Food Ordering")
     
     # Thông tin sinh viên
     st.info("""
@@ -153,7 +153,7 @@ else:
                 user_record = user_df[user_df['user_id'] == search_id].iloc[0]
                 
                 st.write(f"**Thông tin khách hàng {search_id}:**")
-                st.write(f"- Đã chi tiêu: {user_record['total_spent']:.0f}| - Đơn đã đặt: {user_record['order_count']:.0f} | - Rating trung bình: {user_record['avg_rating']:.1f} ⭐")
+                st.write(f"- Đã chi tiêu: {user_record['total_spent']:.0f} | - Đơn đã đặt: {user_record['order_count']:.0f} | - Rating trung bình: {user_record['avg_rating']:.1f} ⭐")
 
                 # Dự đoán dùng mô hình Classifier
                 input_rep = pd.DataFrame([[user_record['total_spent'], user_record['avg_rating'], user_record['avg_mood']]], 
