@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # --- CẤU HÌNH TRANG ---
-st.set_page_config(page_title="Dự đoán Rating F&B", layout="wide")
+st.set_page_config(page_title="Dự đoán", layout="wide")
 
 # Load mô hình và danh sách cột
 @st.cache_resource
@@ -23,20 +23,20 @@ page = st.sidebar.radio("Chọn trang:", ["Thông tin đề tài", "Dự đoán 
 
 # --- TRANG 1: THÔNG TIN ĐỀ TÀI & EDA ---
 if page == "Thông tin đề tài":
-    st.title("📊 Phân tích dữ liệu Đặt hàng Đồ ăn")
+    st.title("Phân tích dữ liệu Đặt hàng Đồ ăn")
     
     col1, col2 = st.columns([1, 2])
     with col1:
         st.info("""
-        **Họ và tên:** Nguyễn Văn A  
-        **MSSV:** 12345678  
+        **Họ và tên:** Lê Tấn Toàn
+        **MSSV:** 22T1020768
         **Đề tài:** Dự đoán mức độ hài lòng khách hàng F&B
         """)
 
     # Hiển thị dữ liệu mẫu (Giả sử bạn upload file data_sach.csv lên git)
     st.subheader("1. Dữ liệu thô (Trích đoạn)")
     try:
-        df_sample = pd.read_csv('data_sach.csv')
+        df_sample = pd.read_csv('food_ordering_behavior_dataset3.csv')
         st.dataframe(df_sample.head(10))
         
         st.subheader("2. Biểu đồ phân tích (EDA)")
