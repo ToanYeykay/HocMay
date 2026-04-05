@@ -97,13 +97,11 @@ else:
             time_order = st.number_input("Thời gian giao (Time Taken):", 5, 120, 30)
 
         # Các widget bổ sung cho đầy đủ bộ dữ liệu
-        c4, c5, c6 = st.columns(3)
+        c4, c5, c6 = st.columns(2)
         with c4:
             meal_type = st.selectbox("Bữa ăn:", df['meal_type'].unique())
         with c5:
             weather = st.radio("Thời tiết mưa?", ["No", "Yes"], horizontal=True)
-        with c6:
-            is_repeat = st.radio("Khách quay lại?", ["No", "Yes"], horizontal=True)
 
     # Nút dự đoán
     if st.button("🚀 Thực hiện dự đoán"):
