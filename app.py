@@ -204,7 +204,7 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
         st.stop()
 
     # 2. CHUẨN BỊ DỮ LIỆU ĐÁNH GIÁ (100% DATA)
-    from sklearn.metrics import confusion_matrix, f1_score, accuracy_score, precision_score, recall_score
+    from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
     
     # Dữ liệu đầu vào cho phân loại
     X_eval = user_df[['total_spent', 'avg_rating', 'avg_mood']].values
@@ -220,7 +220,6 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
     f1 = f1_score(y_true, y_pred)
     prec = precision_score(y_true, y_pred)
     rec = recall_score(y_true, y_pred)
-    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
 
     # 3. GIAO DIỆN TABS
     tab_r, tab_c, tab_h = st.tabs(["⭐ Đánh giá Rating", "🔁 Đánh giá Quay lại", "📈 Lịch sử Huấn luyện"])
@@ -254,17 +253,7 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
         m4.metric("Recall", f"{rec:.2f}")
 
         st.divider()
-        col_c1, col_c2 = st.columns(2)
-        
-        with col_c1:
-            st.write("**Confusion Matrix (Ma trận nhầm lẫn)**")
-            fig_cm, ax_cm = plt.subplots()
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Oranges', ax=ax_cm,
-                        xticklabels=['Rời bỏ (0)', 'Quay lại (1)'], 
-                        yticklabels=['Rời bỏ (0)', 'Quay lại (1)'])
-            ax_cm.set_xlabel('Dự đoán từ AI', fontsize=12, labelpad=10)
-            ax_cm.set_ylabel('Thực tế (100% Quay lại)', fontsize=12, labelpad=10)
-            st.pyplot(fig_cm)
+        col_c2 = st.columns()
 
         with col_c2:
             st.write("**Phân phối Xác suất Quay lại (%)**")
