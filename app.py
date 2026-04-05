@@ -245,25 +245,40 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
         st.pyplot(fig_reg)
 
     with tab_c:
-        st.subheader("Chỉ số hiệu năng Classification (Dữ liệu thật 100%)")
+        st.subheader("Phân tích Xác suất Quay lại (%) thực tế")
         
-        m1, m2 = st.columns(2)
-        m1.metric("Accuracy (Độ chính xác)", f"{acc*100:.1f}%")
-        m2.metric("F1-Score (Độ tin cậy)", f"{f1:.2f}")
+        # 1. Lấy xác suất dự báo thay vì chỉ lấy nhãn 0/1
+        # model.predict_proba trả về mảng [P(0), P(1)], ta lấy cột index 1
+        y_proba = model_repeat.predict_proba(X_eval)[:, 1] * 100 # Đổi sang %
+        
+        col_m1, col_m2, col_m3 = st.columns(3)
+        col_m1.metric("Xác suất TB", f"{y_proba.mean():.1f}%")
+        col_m2.metric("Xác suất Cao nhất", f"{y_proba.max():.1f}%")
+        col_m3.metric("Xác suất Thấp nhất", f"{y_proba.min():.1f}%")
 
         st.divider()
-        st.write("**Confusion Matrix (Ma trận nhầm lẫn)**")
         
-        fig_cm, ax_cm = plt.subplots()
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Oranges', ax=ax_cm,
-                    xticklabels=['Rời bỏ (0)', 'Quay lại (1)'], 
-                    yticklabels=['Rời bỏ (0)', 'Quay lại (1)'])
+        # 2. VẼ BIỂU ĐỒ PHÂN PHỐI (HISTOGRAM)
+        st.write("**Biểu đồ phân phối mức độ trung thành của Khách hàng**")
+        fig_hist, ax_hist = plt.subplots(figsize=(10, 5))
+        
+        # Vẽ Histogram kết hợp đường cong mật độ (KDE)
+        sns.histplot(y_proba, bins=20, kde=True, color="orange", ax=ax_hist)
+        
+        ax_hist.set_title("Phân bổ Xác suất Quay lại trên toàn hệ thống", fontsize=14)
+        ax_hist.set_xlabel("Xác suất khách quay lại (%)", fontsize=12)
+        ax_hist.set_ylabel("Số lượng khách hàng", fontsize=12)
+        ax_hist.grid(axis='y', alpha=0.3)
+        
+        st.pyplot(fig_hist)
 
-        # Áp dụng hàm set_xlabel Toàn vừa tra cứu
-        ax_cm.set_xlabel('Dự đoán từ Mô hình AI', fontsize=12, labelpad=10)
-        ax_cm.set_ylabel('Thực tế (100% Quay lại)', fontsize=12, labelpad=10)
-        
-        st.pyplot(fig_cm)
+        # 3. NHẬN XÉT DÀNH CHO BIỂU ĐỒ %
+        st.info(f"""
+        **Giải thích biểu đồ:**
+        - Trục ngang thể hiện mức độ AI dự báo khách sẽ quay lại.
+        - Nếu các cột lệch về bên phải (gần 100%), chứng tỏ tệp khách hàng của hệ thống có lòng trung thành rất cao.
+        - Đường cong màu cam thể hiện xu hướng chung của hành vi khách hàng.
+        """)
 
     # 4. PHÂN TÍCH SAI SỐ
     st.divider()
