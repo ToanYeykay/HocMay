@@ -111,10 +111,10 @@ else:
         with st.expander("Điền thông tin chi tiết", expanded=True):
             c1, c2, c3 = st.columns(3)
             with c1:
-                u_id_input = st.text_input("Mã khách hàng:", "1000")
+                u_id_input = st.text_input("Mã khách hàng:", "USER_01")
                 order_val = st.number_input("Giá trị đơn:", 50, 5000, 500)
             with c2:
-                mood_input = st.selectbox("Tâm trạng:", ['Celebrating', 'Stressed', 'Lazy', 'Happy'])
+                mood_input = st.selectbox("Tâm trạng:", ['Stressed', 'Lazy', 'Happy', 'Celebrating'])
                 time_input = st.number_input("Thời gian giao (phút):", 5, 150, 30)
             with c3:
                 res_input = st.selectbox("Loại nhà hàng:", df['restaurant_type'].unique())
@@ -153,7 +153,7 @@ else:
                 user_record = user_df[user_df['user_id'] == search_id].iloc[0]
                 
                 st.write(f"**Thông tin khách hàng {search_id}:**")
-                st.write(f"- Đã chi tiêu: {user_record['USER_01total_spent']:.0f} | - Đơn đã đặt: {user_record['order_count']:.0f} | - Rating trung bình: {user_record['avg_rating']:.1f} ⭐")
+                st.write(f"- Đã chi tiêu: {user_record['total_spent']:.0f} | - Đơn đã đặt: {user_record['order_count']:.0f} | - Rating trung bình: {user_record['avg_rating']:.1f} ⭐")
 
                 # Dự đoán dùng mô hình Classifier
                 input_rep = pd.DataFrame([[user_record['total_spent'], user_record['avg_rating'], user_record['avg_mood']]], 
