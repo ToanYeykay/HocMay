@@ -190,7 +190,6 @@ elif page == "Trang 2: Triển khai Mô hình":
 # ---------------------------------------------------------
 elif page == "Trang 3: Đánh giá & Hiệu năng":
     try:
-        # Nhớ kiểm tra đúng tên file và thư mục của Toàn nhé
         model_rating = joblib.load('models/model_xgb.pkl')
         model_repeat = joblib.load('models/model_repeat.pkl')
     except:
@@ -198,12 +197,15 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
     if model_repeat is None:
         st.error("Chưa nạp được mô hình để đánh giá!")
     else:
-        # Code tính Confusion Matrix từ dữ liệu thật
         X_eval = user_df[['total_spent', 'avg_rating', 'avg_mood']].values
         y_true = (user_df['order_count'] > 1).astype(int)
         
-        # Bây giờ dòng này sẽ chạy mượt mà:
         y_pred = model_repeat.predict(X_eval)
+
+    from sklearn.metrics import confusion_matrix, f1_score
+    cm = confusion_matrix(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred)
+    st.write(f"📊 Đánh giá trên tổng số **{len(user_df)}** mẫu dữ liệu thực tế.")
     st.title("📉 Đánh Giá Hiệu Năng Mô Hình")
     st.write("Phần này trình bày các chỉ số kỹ thuật để chứng minh độ tin cậy của 2 hệ thống AI.")
 
