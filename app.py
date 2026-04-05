@@ -97,8 +97,8 @@ elif page == "Trang 2: Triển khai Mô hình":
 
     # Load mô hình (.pkl)
     try:
-        model_rating = joblib.load('model_xgb.pkl')
-        model_repeat = joblib.load('model_repeat.pkl')
+        model_rating = joblib.load('models\model_xgb.pkl')
+        model_repeat = joblib.load('models\model_repeat.pkl')
     except:
         st.warning("Không tìm thấy file model_xgb.pkl hoặc model_repeat.pkl!")
         st.stop()
