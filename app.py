@@ -253,9 +253,8 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
         m4.metric("Recall", f"{rec:.2f}")
 
         st.divider()
-        col_c2 = st.columns()
-
-        with col_c2:
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
             st.write("**Phân phối Xác suất Quay lại (%)**")
             fig_hist, ax_hist = plt.subplots()
             sns.histplot(y_proba, bins=15, kde=True, color="orange", ax=ax_hist)
