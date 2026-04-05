@@ -37,7 +37,7 @@ except Exception as e:
     st.stop()
 
 # --- SIDEBAR ---
-st.sidebar.title("📌 Danh Mục")
+st.sidebar.title("Danh Mục")
 page = st.sidebar.radio("Chuyển trang:", ["Trang 1: Giới thiệu & EDA", "Trang 2: Dự đoán Mô hình"])
 
 # ---------------------------------------------------------
@@ -54,7 +54,7 @@ if page == "Trang 1: Giới thiệu & EDA":
     """)
 
     st.markdown("""
-    ### 🎯 Giá trị thực tiễn
+    ### Giá trị thực tiễn
     Ứng dụng này giúp các đơn vị vận hành nhận diện sớm các đơn hàng có nguy cơ bị đánh giá thấp và dự báo khả năng giữ chân khách hàng (Retention). 
     Dữ liệu giúp tối ưu hóa trải nghiệm dựa trên tâm trạng và thói quen chi tiêu của người dùng.
     """)
@@ -82,7 +82,7 @@ if page == "Trang 1: Giới thiệu & EDA":
         sns.heatmap(corr, annot=True, cmap='RdBu', fmt=".2f", ax=ax2)
         st.pyplot(fig2)
 
-    st.write("### 📝 Nhận xét về dữ liệu")
+    st.write("### Nhận xét về dữ liệu")
     st.write("""
     - **Tính phân tán:** Rating tập trung chủ yếu ở mức 3 và 4 sao, cho thấy dịch vụ khá ổn định nhưng thiếu đột phá lên 5 sao.
     - **Yếu tố then chốt:** Tâm trạng (`mood`) và Thời gian giao hàng có tác động lớn nhất đến điểm số đánh giá.
@@ -93,17 +93,17 @@ if page == "Trang 1: Giới thiệu & EDA":
 # TRANG 2: TRIỂN KHAI MÔ HÌNH
 # ---------------------------------------------------------
 else:
-    st.title("🤖 Trình Dự Báo Thông Minh")
+    st.title("Trình Dự Báo Thông Minh")
 
     # Load Models
     try:
         model_rating = joblib.load('model_xgb.pkl')
         model_repeat = joblib.load('model_repeat.pkl')
     except:
-        st.warning("⚠️ Không tìm thấy file .pkl. Hãy đảm bảo bạn đã upload model_xgb.pkl và model_repeat.pkl.")
+        st.warning(" Không tìm thấy file .pkl. Hãy đảm bảo bạn đã upload model_xgb.pkl và model_repeat.pkl.")
         st.stop()
 
-    tab1, tab2 = st.tabs(["⭐ Dự đoán Rating đơn mới", "📈 Tỉ lệ khách quay lại"])
+    tab1, tab2 = st.tabs(["Dự đoán Rating đơn mới", "Tỉ lệ khách quay lại"])
 
     # --- TAB 1: DỰ ĐOÁN RATING ---
     with tab1:
@@ -112,7 +112,7 @@ else:
             c1, c2, c3 = st.columns(3)
             with c1:
                 u_id_input = st.text_input("Mã khách hàng:", "USER_01")
-                order_val = st.number_input("Giá trị đơn (VNĐ):", 50, 5000, 500)
+                order_val = st.number_input("Giá trị đơn:", 50, 5000, 500)
             with c2:
                 mood_input = st.selectbox("Tâm trạng:", ['Stressed', 'Lazy', 'Happy', 'Celebrating'])
                 time_input = st.number_input("Thời gian giao (phút):", 5, 150, 30)
@@ -152,8 +152,8 @@ else:
                 # Lấy dữ liệu lịch sử
                 user_record = user_df[user_df['user_id'] == search_id].iloc[0]
                 
-                st.write(f"✅ **Thông tin khách hàng {search_id}:**")
-                st.write(f"- Đã chi tiêu: {user_record['total_spent']:.0f} VNĐ | - Đơn đã đặt: {user_record['order_count']:.0f} | - Rating trung bình: {user_record['avg_rating']:.1f} ⭐")
+                st.write(f"**Thông tin khách hàng {search_id}:**")
+                st.write(f"- Đã chi tiêu: {user_record['total_spent']:.0f}| - Đơn đã đặt: {user_record['order_count']:.0f} | - Rating trung bình: {user_record['avg_rating']:.1f} ⭐")
 
                 # Dự đoán dùng mô hình Classifier
                 input_rep = pd.DataFrame([[user_record['total_spent'], user_record['avg_rating'], user_record['avg_mood']]], 
@@ -168,7 +168,7 @@ else:
                 proba_final = max(5.0, min(98.5, proba_final)) # Chặn biên cho đẹp
 
                 st.divider()
-                st.write(f"### 📈 Tỉ lệ khách hàng quay lại: **{proba_final:.1f}%**")
+                st.write(f"### Tỉ lệ khách hàng quay lại: **{proba_final:.1f}%**")
                 st.progress(float(proba_final/100))
                 
                 if proba_final > 50:
