@@ -111,10 +111,10 @@ else:
         with st.expander("Điền thông tin chi tiết", expanded=True):
             c1, c2, c3 = st.columns(3)
             with c1:
-                u_id_input = st.text_input("Mã khách hàng:", "USER_01")
+                u_id_input = st.text_input("Mã khách hàng:", "1001")
                 order_val = st.number_input("Giá trị đơn:", 50, 5000, 500)
             with c2:
-                mood_input = st.selectbox("Tâm trạng:", ['Stressed', 'Lazy', 'Happy', 'Celebrating'])
+                mood_input = st.selectbox("Tâm trạng:", ['Celebrating', 'Stressed', 'Lazy', 'Happy'])
                 time_input = st.number_input("Thời gian giao (phút):", 5, 150, 30)
             with c3:
                 res_input = st.selectbox("Loại nhà hàng:", df['restaurant_type'].unique())
