@@ -243,7 +243,7 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
         ax_reg.set_ylabel("AI Dự báo (Stars)")
         st.pyplot(fig_reg)
 
-    # --- TAB 2: QUAY LẠI (CLASSIFICATION & %) ---
+    # --- TRONG TAB 2: QUAY LẠI (CLASSIFICATION & %) ---
     with tab_c:
         st.subheader("Chỉ số hiệu năng Classification")
         m1, m2, m3, m4 = st.columns(4)
@@ -253,15 +253,33 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
         m4.metric("Recall", f"{rec:.2f}")
 
         st.divider()
+        
         col_c1, col_c2 = st.columns(2)
+        
         with col_c1:
+            st.write("**Ma trận nhầm lẫn (Confusion Matrix)**")
+            from sklearn.metrics import confusion_matrix
+            
+            # Tính toán ma trận nhầm lẫn
+            cm = confusion_matrix(y_true, y_pred)
+            
+            # Vẽ biểu đồ Heatmap
+            fig_cm, ax_cm = plt.subplots(figsize=(5, 4))
+            sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', ax=ax_cm,
+                        xticklabels=['Không quay lại', 'Quay lại'],
+                        yticklabels=['Không quay lại', 'Quay lại'])
+            ax_cm.set_xlabel('Dự đoán từ AI')
+            ax_cm.set_ylabel('Thực tế khách hàng')
+            st.pyplot(fig_cm)
+            st.caption("Ma trận cho biết số lượng dự đoán đúng (đường chéo) và dự đoán sai.")
+
+        with col_c2:
             st.write("**Phân phối Xác suất Quay lại (%)**")
-            fig_hist, ax_hist = plt.subplots()
+            fig_hist, ax_hist = plt.subplots(figsize=(5, 4))
             sns.histplot(y_proba, bins=15, kde=True, color="orange", ax=ax_hist)
             ax_hist.set_xlabel("Xác suất dự báo (%)")
             ax_hist.set_ylabel("Số lượng khách hàng")
             st.pyplot(fig_hist)
-
     # --- TAB 3: LOSS & ACCURACY CURVES ---
     with tab_h:
         st.subheader("📊 Lịch sử huấn luyện (Training History)")
