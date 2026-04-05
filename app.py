@@ -165,7 +165,30 @@ elif page == "Trang 2: Triển khai Mô hình":
 
         st.divider()
         st.subheader("Kết quả phân tích")
+        st.divider()
+        st.subheader("📊 Kết quả phân tích & Chỉ số chi tiết")
+        
         res_col1, res_col2 = st.columns(2)
+        with res_col1:
+            st.metric("⭐ Rating dự báo", f"{pred_rating:.2f} / 5.0")
+            st.progress(float(pred_rating/5))
+        with res_col2:
+            st.metric("🔁 Xác suất quay lại", f"{proba_final:.1f}%")
+            st.progress(float(proba_final/100))
+
+        st.write("---")
+        c1, c2, c3 = st.columns(3)
+        
+        tier = "Vàng" if new_total_spent > 10000 else "Bạc" if new_total_spent > 5000 else "Đồng"
+        c1.metric("Hạng khách hàng", tier)
+        
+        reliability = "Cao" if hist_count > 10 else "Trung bình" if hist_count > 0 else "Thấp (Mới)"
+        c2.metric("Độ tin cậy AI", reliability)
+
+        ltv = new_total_spent * (proba_final / 100) * 1.5
+        c3.metric("Giá trị ước tính (LTV)", f"{ltv:,.0f} đ")
+
+        
 
         with res_col1:
             st.metric("Rating dự báo", f"{pred_rating:.2f} / 5.0")
