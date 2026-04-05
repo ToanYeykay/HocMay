@@ -113,7 +113,7 @@ else:
         c1, c2, c3 = st.columns(3)
         with c1:
             u_id = st.text_input("User ID (Tra cứu lịch sử):", "2000")
-            order_val = st.number_input("Giá trị đơn hàng (VNĐ):", 50, 5000, 500)
+            order_val = st.number_input("Giá trị đơn hàng:", 50, 10000000, 500)
         with c2:
             mood_label = st.selectbox("Tâm trạng khách hàng:", ['Stressed', 'Lazy', 'Happy', 'Celebrating'])
             time_order = st.number_input("Thời gian giao dự kiến (phút):", 5, 120, 30)
@@ -194,4 +194,4 @@ else:
             if proba_final > 50: st.info(f"Chỉ số trung thành: Tốt (+{(proba_final-50):.1f}%)")
             else: st.error(f"Chỉ số trung thành: Rủi ro (-{(50-proba_final):.1f}%)")
 
-        st.success(f"📊 **Hồ sơ tích lũy:** Tổng chi tiêu {new_total_spent:,.0f} VNĐ | Tổng đơn: {new_order_count}")
+        st.success(f"📊 **Hồ sơ tích lũy:** Tổng chi tiêu {new_total_spent:,.0f} | Tổng đơn: {new_order_count}")
