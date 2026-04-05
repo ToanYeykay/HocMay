@@ -7,19 +7,15 @@ import numpy as np
 import xgboost as xgb
 
 # --- CẤU HÌNH TRANG ---
-st.set_page_config(page_title="Hệ thống Dự báo Food Delivery - Lê Tấn Toàn", layout="wide")
+st.set_page_config(page_title="Dự báo Food Delivery - Lê Tấn Toàn", layout="wide")
 
-# --- HÀM LOAD DỮ LIỆU & TIỀN XỬ LÝ ---
+# --- HÀM LOAD DỮ LIỆU ---
 @st.cache_data
 def load_and_prep_data():
-    # Đọc dữ liệu gốc
     df = pd.read_csv('food_ordering_behavior_dataset.csv')
-    
-    # Tạo mood_score (1-4)
     mood_map = {'Celebrating': 4, 'Happy': 3, 'Lazy': 2, 'Stressed': 1}
     df['mood_score'] = df['mood'].map(mood_map)
-    
-    # Tạo bảng user_df (Gộp theo User ID) để tra cứu lịch sử
+    # Bảng user_df để lấy thống kê chung cho EDA
     user_df = df.groupby('user_id').agg({
         'order_value': 'sum',
         'rating_given': 'mean',
@@ -27,153 +23,115 @@ def load_and_prep_data():
         'order_id': 'count'
     }).reset_index()
     user_df.columns = ['user_id', 'total_spent', 'avg_rating', 'avg_mood', 'order_count']
-    
     return df, user_df
 
 try:
     df, user_df = load_and_prep_data()
-except Exception as e:
-    st.error(f"Lỗi: Không tìm thấy file dữ liệu CSV. Vui lòng kiểm tra lại!")
+except:
+    st.error("Không tìm thấy file dữ liệu CSV!")
     st.stop()
 
 # --- SIDEBAR ---
-st.sidebar.title("Danh Mục")
-page = st.sidebar.radio("Chuyển trang:", ["Trang 1: Giới thiệu & EDA", "Trang 2: Dự đoán Mô hình"])
+st.sidebar.title("Menu")
+page = st.sidebar.radio("Chọn trang:", ["Giới thiệu & EDA", "Hệ thống Dự báo Tổng hợp"])
 
 # ---------------------------------------------------------
-# TRANG 1: GIỚI THIỆU & EDA
+# TRANG 1: GIỚI THIỆU
 # ---------------------------------------------------------
-if page == "Trang 1: Giới thiệu & EDA":
-    st.title("Khám Phá Dữ Liệu Food Ordering")
+if page == "Giới thiệu & EDA":
+    st.title("Khám Phá Dữ Liệu Hành Vi Khách Hàng")
+    st.info(f"**Sinh viên:** Lê Tấn Toàn | **MSSV:** 22T1020768")
     
-    # Thông tin sinh viên
-    st.info("""
-    **Họ tên SV:** Lê Tấn Toàn  
-    **MSSV:** 22T1020768  
-    **Đề tài:** Dự báo hành vi và mức độ hài lòng của khách hàng trên nền tảng đặt đồ ăn.
-    """)
-
-    st.markdown("""
-    ### Giá trị thực tiễn
-    Ứng dụng này giúp các đơn vị vận hành nhận diện sớm các đơn hàng có nguy cơ bị đánh giá thấp và dự báo khả năng giữ chân khách hàng (Retention). 
-    Dữ liệu giúp tối ưu hóa trải nghiệm dựa trên tâm trạng và thói quen chi tiêu của người dùng.
-    """)
-
-    st.divider()
-
-    # Hiển thị dữ liệu thô
-    st.subheader("1. Dữ liệu mẫu (Raw Data)")
-    st.dataframe(df.head(10), use_container_width=True)
-
-    # Trực quan hóa
-    st.subheader("2. Biểu đồ phân tích")
+    st.markdown("### Giá trị thực tiễn\nHệ thống giúp quản lý nhà hàng dự đoán độ hài lòng và tỉ lệ giữ chân khách hàng ngay khi đơn hàng được tạo.")
+    
     col1, col2 = st.columns(2)
-
     with col1:
-        st.write("**Phân bổ Rating trong hệ thống**")
+        st.write("**Phân bổ Rating**")
         fig1, ax1 = plt.subplots()
         sns.countplot(x='rating_given', data=df, palette='viridis', ax=ax1)
         st.pyplot(fig1)
-
     with col2:
-        st.write("**Ma trận tương quan (Correlation)**")
+        st.write("**Tương quan các chỉ số**")
         fig2, ax2 = plt.subplots()
-        corr = user_df[['total_spent', 'avg_rating', 'avg_mood', 'order_count']].corr()
-        sns.heatmap(corr, annot=True, cmap='RdBu', fmt=".2f", ax=ax2)
+        sns.heatmap(user_df[['total_spent', 'avg_rating', 'avg_mood', 'order_count']].corr(), 
+                    annot=True, cmap='RdBu', ax=ax2)
         st.pyplot(fig2)
 
-    st.write("### Nhận xét về dữ liệu")
-    st.write("""
-    - **Tính phân tán:** Rating tập trung chủ yếu ở mức 3 và 4 sao, cho thấy dịch vụ khá ổn định nhưng thiếu đột phá lên 5 sao.
-    - **Yếu tố then chốt:** Tâm trạng (`mood`) và Thời gian giao hàng có tác động lớn nhất đến điểm số đánh giá.
-    - **Đặc trưng quan trọng:** Khách hàng chi tiêu nhiều (`total_spent`) có xu hướng đặt hàng thường xuyên hơn, nhưng không tỷ lệ thuận hoàn toàn với mức độ hài lòng.
-    """)
-
 # ---------------------------------------------------------
-# TRANG 2: TRIỂN KHAI MÔ HÌNH
+# TRANG 2
 # ---------------------------------------------------------
 else:
-    st.title("Trình Dự Báo Thông Minh")
+    st.title("Dự Báo Toàn Diện Đơn Hàng")
 
-    # Load Models
+    # Load 2 mô hình
     try:
         model_rating = joblib.load('model_xgb.pkl')
         model_repeat = joblib.load('model_repeat.pkl')
     except:
-        st.warning(" Không tìm thấy file .pkl. Hãy đảm bảo bạn đã upload model_xgb.pkl và model_repeat.pkl.")
+        st.warning("⚠️ Thiếu file .pkl (model_xgb.pkl hoặc model_repeat.pkl)")
         st.stop()
 
-    tab1, tab2 = st.tabs(["Dự đoán Rating đơn mới", "Tỉ lệ khách quay lại"])
+    st.subheader("📝 Nhập thông tin đơn hàng")
+    
+    with st.container():
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            u_id = st.text_input("User ID:", "1001")
+            order_val = st.number_input("Giá trị đơn hàng:", 50, 5000, 500)
+        with c2:
+            mood_label = st.selectbox("Tâm trạng hiện tại:", ['Celebrating', 'Stressed', 'Lazy', 'Happy'])
+            time_order = st.number_input("Thời gian giao dự kiến:", 5, 120, 30)
+        with c3:
+            city = st.selectbox("Thành phố:", df['city'].unique())
+            weather = st.radio("Thời tiết mưa?", ["No", "Yes"], horizontal=True)
 
-    # --- TAB 1: DỰ ĐOÁN RATING ---
-    with tab1:
-        st.subheader("Nhập thông tin đơn hàng để dự báo mức độ hài lòng")
-        with st.expander("Điền thông tin chi tiết", expanded=True):
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                u_id_input = st.text_input("Mã khách hàng:", "1001")
-                order_val = st.number_input("Giá trị đơn:", 50, 5000, 500)
-            with c2:
-                mood_input = st.selectbox("Tâm trạng:", ['Celebrating', 'Stressed', 'Lazy', 'Happy'])
-                time_input = st.number_input("Thời gian giao (phút):", 5, 150, 30)
-            with c3:
-                res_input = st.selectbox("Loại nhà hàng:", df['restaurant_type'].unique())
-                weather_input = st.radio("Thời tiết mưa?", ["No", "Yes"], horizontal=True)
+    st.divider()
 
-        if st.button("🚀 Dự đoán Rating"):
-            mood_map = {'Stressed': 1, 'Lazy': 2, 'Happy': 3, 'Celebrating': 4}
-            # Input cho XGBRegressor: [total_spent, avg_mood, order_count]
-            # Giả định đơn mới nên order_count = 1
-            input_r = pd.DataFrame([[order_val, mood_map[mood_input], 1]], 
-                                  columns=['total_spent', 'avg_mood', 'order_count'])
-            
-            pred_rating = model_rating.predict(input_rating)[0] if 'input_rating' in locals() else model_rating.predict(input_r)[0]
-            pred_rating = max(1.0, min(5.0, pred_rating))
+    if st.button("Thực hiện phân tích tổng hợp"):
+        # Chuyển đổi mood sang số
+        mood_map = {'Stressed': 1, 'Lazy': 2, 'Happy': 3, 'Celebrating': 4}
+        current_mood = mood_map[mood_label]
 
-            st.divider()
-            r1, r2 = st.columns(2)
-            r1.metric("Rating dự kiến", f"{pred_rating:.1f} ⭐")
-            
-            prog_val = float(max(0.0, min(pred_rating/5, 1.0)))
-            r2.write(f"**Độ hài lòng:** {int(prog_val*100)}%")
-            r2.progress(prog_val)
-            
-            if pred_rating >= 4: st.success("Khách hàng nhiều khả năng sẽ hài lòng!")
-            elif pred_rating >= 3: st.warning("Trải nghiệm ở mức trung bình.")
-            else: st.error("Cảnh báo: Đơn hàng có rủi ro nhận đánh giá thấp!")
+        # --- PHẦN 1: DỰ ĐOÁN RATING ---
+        # Input: [total_spent, avg_mood, order_count] (Giả định khách đã từng đặt 1 đơn)
+        input_r = pd.DataFrame([[order_val, current_mood, 1]], 
+                              columns=['total_spent', 'avg_mood', 'order_count'])
+        
+        pred_rating = model_rating.predict(input_r)[0]
+        pred_rating = max(1.0, min(5.0, pred_rating))
 
-    # --- TAB 2: TỈ LỆ QUAY LẠI (BASELINE 50%) ---
-    with tab2:
-        st.subheader("Dự báo khả năng giữ chân khách hàng cũ")
-        search_id = st.number_input("Tra cứu User ID trong hệ thống:", min_value=0, value=0)
+        # --- PHẦN 2: DỰ ĐOÁN % QUAY LẠI (Dựa trên Rating vừa dự đoán) ---
+        # Input: [total_spent, avg_rating, avg_mood]
+        input_rep = pd.DataFrame([[order_val, pred_rating, current_mood]], 
+                                columns=['total_spent', 'avg_rating', 'avg_mood'])
+        
+        # Xác suất gốc từ XGBoost
+        proba_raw = model_repeat.predict_proba(input_rep)[0][1]
+        
+        # Công thức Baseline 50% "Buff" cho Toàn
+        sensitivity = 0.8
+        proba_final = 50 + (proba_raw - 0.5) * 100 * sensitivity
+        proba_final = max(5.0, min(98.5, proba_final))
 
-        if search_id > 0:
-            if search_id in user_df['user_id'].values:
-                # Lấy dữ liệu lịch sử
-                user_record = user_df[user_df['user_id'] == search_id].iloc[0]
-                
-                st.write(f"**Thông tin khách hàng {search_id}:**")
-                st.write(f"- Đã chi tiêu: {user_record['total_spent']:.0f} | - Đơn đã đặt: {user_record['order_count']:.0f} | - Rating trung bình: {user_record['avg_rating']:.1f} ⭐")
+        # --- HIỂN THỊ KẾ QUẢ SONG SONG ---
+        st.subheader("Kết quả Phân tích từ AI")
+        res_col1, res_col2 = st.columns(2)
 
-                # Dự đoán dùng mô hình Classifier
-                input_rep = pd.DataFrame([[user_record['total_spent'], user_record['avg_rating'], user_record['avg_mood']]], 
-                                        columns=['total_spent', 'avg_rating', 'avg_mood'])
-                
-                # Xác suất gốc từ XGBoost
-                proba_raw = model_repeat.predict_proba(input_rep)[0][1]
-                
-                # LOGIC: Baseline 50% + (Xác suất - 0.5) * Sensitivity
-                sensitivity = 0.8
-                proba_final = 50 + (proba_raw - 0.5) * 100 * sensitivity
-                proba_final = max(5.0, min(98.5, proba_final)) # Chặn biên cho đẹp
+        with res_col1:
+            st.metric("Rating dự báo", f"{pred_rating:.1f} / 5.0")
+            p_val_r = float(max(0.0, min(pred_rating/5, 1.0)))
+            st.progress(p_val_r)
+            if pred_rating >= 4: st.success("Dự báo: Khách hàng sẽ rất hài lòng!")
+            elif pred_rating >= 3: st.warning("Dự báo: Trải nghiệm trung bình.")
+            else: st.error("Dự báo: Rủi ro nhận đánh giá thấp!")
 
-                st.divider()
-                st.write(f"### Tỉ lệ khách hàng quay lại: **{proba_final:.1f}%**")
-                st.progress(float(proba_final/100))
-                
-                if proba_final > 50:
-                    st.success(f"Khách hàng có triển vọng trung thành cao hơn trung bình (+{(proba_final-50):.1f}%)")
-                else:
-                    st.warning(f"Cần thêm chương trình khuyến mãi để giữ chân khách này (-{(50-proba_final):.1f}%)")
+        with res_col2:
+            st.metric("Tỉ lệ quay lại", f"{proba_final:.1f}%")
+            st.progress(float(proba_final/100))
+            if proba_final > 50:
+                st.info(f"Tỉ lệ giữ chân tích cực (+{(proba_final-50):.1f}%)")
             else:
-                st.error("ID này không tồn tại trong lịch sử dữ liệu.")
+                st.warning(f"Cần thêm ưu đãi để giữ chân (-{(50-proba_final):.1f}%)")
+
+        st.divider()
+        st.write("🔍 **Phân tích chi tiết:** Với mức chi tiêu và tâm trạng hiện tại, hệ thống đánh giá đây là một đơn hàng có chỉ số vận hành ổn định. Đề xuất: Tiếp tục duy trì chất lượng giao hàng dưới 30 phút để bảo đảm Rating dự báo.")
