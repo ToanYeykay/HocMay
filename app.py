@@ -44,8 +44,6 @@ page = st.sidebar.radio("Chuyển trang:", [
 ])
 
 # ---------------------------------------------------------
-# TRANG 1
-# ---------------------------------------------------------
 if page == "Trang 1: Giới thiệu & EDA":
     st.title("Khám Phá Dữ Liệu Hành Vi Đặt Hàng")
     st.info(f"""
@@ -89,8 +87,6 @@ if page == "Trang 1: Giới thiệu & EDA":
     - **Tính thực tế:** Dữ liệu cho thấy khách hàng chi tiêu càng cao thường có tỉ lệ quay lại ổn định hơn, tạo tiền đề cho việc dự báo lòng trung thành.
     """)
 
-# ---------------------------------------------------------
-# TRANG 2
 # ---------------------------------------------------------
 elif page == "Trang 2: Triển khai Mô hình":
     st.title("Dự Báo và Phân Tích")
@@ -184,8 +180,6 @@ elif page == "Trang 2: Triển khai Mô hình":
 
         st.success(f"**Hồ sơ tích lũy:** Tổng chi tiêu {new_total_spent:,.0f} | Tổng đơn: {new_order_count}")
 # ---------------------------------------------------------
-# TRANG 3: ĐÁNH GIÁ & HIỆU NĂNG (EVALUATION)
-# ---------------------------------------------------------
 elif page == "Trang 3: Đánh giá & Hiệu năng":
     st.title("Đánh Giá Hiệu Năng Mô Hình")
     try:
@@ -220,7 +214,7 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
     rec = recall_score(y_true, y_pred)
 
     # 3. GIAO DIỆN TABS
-    tab_r, tab_c, tab_h = st.tabs(["⭐ Đánh giá Rating", "🔁 Đánh giá Quay lại", "📈 Lịch sử Huấn luyện"])
+    tab_r, tab_c, tab_h = st.tabs(["Đánh giá Rating", "Đánh giá Quay lại", "Lịch sử Huấn luyện"])
 
     # --- TAB 1: RATING (REGRESSION) ---
     with tab_r:
@@ -280,7 +274,7 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
             st.pyplot(fig_hist)
     # --- TAB 3: LOSS & ACCURACY CURVES ---
     with tab_h:
-        st.subheader("📊 Lịch sử huấn luyện (Training History)")
+        st.subheader("Lịch sử huấn luyện (Training History)")
         st.write("Mô phỏng quá trình tối ưu hóa qua 100 vòng lặp (Boosting Rounds).")
         
         # Giả lập dữ liệu Loss/Accuracy
