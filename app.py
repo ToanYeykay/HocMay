@@ -5,6 +5,8 @@ import seaborn as sns
 import joblib
 import numpy as np
 import xgboost as xgb
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
+
 
 st.set_page_config(page_title="Dự báo Food Delivery - Lê Tấn Toàn", layout="wide")
 
@@ -195,7 +197,6 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
         st.stop()
 
     # 2. CHUẨN BỊ DỮ LIỆU ĐÁNH GIÁ (100% DATA)
-    from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
     
     # Dữ liệu đầu vào cho phân loại
     X_eval = user_df[['total_spent', 'avg_rating', 'avg_mood']].values
