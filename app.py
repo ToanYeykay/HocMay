@@ -295,7 +295,7 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
 
     # 4. NHẬN ĐỊNH SAI SỐ
     st.divider()
-    st.subheader("🔍 Phân tích chuyên sâu & Hướng cải thiện")
+    st.subheader("Phân tích và Hướng cải thiện")
     with st.expander("Bấm để xem chi tiết nhận định"):
         st.write(f"""
         1. **Về độ chính xác:** Mô hình đạt Accuracy **{acc*100:.1f}%** và F1-Score **{f1:.2f}**. Với dữ liệu thực tế ghi nhận 100% quay lại, mô hình đã học được các đặc trưng tích cực của tệp khách hàng này.
