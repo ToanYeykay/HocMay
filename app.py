@@ -83,7 +83,6 @@ if page == "Trang 1: Giới thiệu & EDA":
     st.write("### Nhận xét về dữ liệu")
     st.write("""
     - **Dữ liệu phân bố:** Rating tập trung mạnh ở mức 5 sao, cho thấy dịch vụ ở mức xuất sắc.
-    - **Đặc trưng quan trọng:** Tâm trạng có tương quan thuận rõ rệt với Rating. 
     - **Tính thực tế:** Dữ liệu cho thấy khách hàng chi tiêu càng cao thường có tỉ lệ quay lại ổn định hơn, tạo tiền đề cho việc dự báo lòng trung thành.
     """)
 
