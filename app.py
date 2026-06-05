@@ -60,14 +60,14 @@ if page == "Trang 1: Giới thiệu & EDA":
     """)
 
     st.divider()
-    st.subheader("1. Hiển thị dữ liệu mẫu (Raw Data)")
+    st.subheader("1. Hiển thị dữ liệu mẫu")
     st.dataframe(df.head(10), use_container_width=True)
 
     st.subheader("2. Biểu đồ phân tích trực quan")
     col1, col2 = st.columns(2)
 
     with col1:
-        st.write("**Phân phối điểm Rating (Nhãn)**")
+        st.write("**Phân phối điểm Rating**")
         fig1, ax1 = plt.subplots()
         sns.countplot(x='rating_given', data=df, palette='magma', ax=ax1)
         st.pyplot(fig1)
@@ -83,7 +83,7 @@ if page == "Trang 1: Giới thiệu & EDA":
     st.write("### Nhận xét về dữ liệu")
     st.write("""
     - **Dữ liệu phân bố:** Rating tập trung mạnh ở mức 5 sao, cho thấy dịch vụ ở mức xuất sắc.
-    - **Đặc trưng quan trọng:** Tâm trạng (`mood`) có tương quan thuận rõ rệt với Rating. 
+    - **Đặc trưng quan trọng:** Tâm trạng có tương quan thuận rõ rệt với Rating. 
     - **Tính thực tế:** Dữ liệu cho thấy khách hàng chi tiêu càng cao thường có tỉ lệ quay lại ổn định hơn, tạo tiền đề cho việc dự báo lòng trung thành.
     """)
 
@@ -249,7 +249,7 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
         col_c1, col_c2 = st.columns(2)
         
         with col_c1:
-            st.write("**Ma trận nhầm lẫn (Confusion Matrix)**")
+            st.write("**Ma trận nhầm lẫn**")
             from sklearn.metrics import confusion_matrix
             
             # Tính toán ma trận nhầm lẫn
@@ -263,19 +263,19 @@ elif page == "Trang 3: Đánh giá & Hiệu năng":
             ax_cm.set_xlabel('Dự đoán')
             ax_cm.set_ylabel('Thực tế khách hàng')
             st.pyplot(fig_cm)
-            st.caption("Ma trận cho biết số lượng dự đoán đúng (đường chéo) và dự đoán sai.")
+            st.caption("Ma trận cho biết số lượng dự đoán đúng và dự đoán sai.")
 
         with col_c2:
-            st.write("**Phân phối Xác suất Quay lại (%)**")
+            st.write("**Phân phối Xác suất**")
             fig_hist, ax_hist = plt.subplots(figsize=(5, 4))
             sns.histplot(y_proba, bins=15, kde=True, color="orange", ax=ax_hist)
-            ax_hist.set_xlabel("Xác suất dự báo (%)")
+            ax_hist.set_xlabel("Xác suất dự báo")
             ax_hist.set_ylabel("Số lượng khách hàng")
             st.pyplot(fig_hist)
     # --- TAB 3: LOSS & ACCURACY CURVES ---
     with tab_h:
-        st.subheader("Lịch sử huấn luyện (Training History)")
-        st.write("Mô phỏng quá trình tối ưu hóa qua 100 vòng lặp (Boosting Rounds).")
+        st.subheader("Lịch sử huấn luyện")
+        st.write("Mô phỏng quá trình tối ưu hóa qua 100 vòng lặp.")
         
         # Giả lập dữ liệu Loss/Accuracy
         iters = np.arange(1, 101)
